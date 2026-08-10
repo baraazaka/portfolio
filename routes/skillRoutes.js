@@ -1,8 +1,14 @@
-const express=require("express");
+const express = require("express");
 
-const{getSkills}=require("../controllers/skillConrtoller");
+const {
+    getSkills,
+    createSkill
+} = require("../controllers/skillController");
 
-const router=express.Router();
+const router = express.Router();
 
-router.get("/",getSkills);
-module.exports=router;
+router.get("/", getSkills);
+
+router.post("/", createSkill);
+
+module.exports = router;
