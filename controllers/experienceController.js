@@ -85,9 +85,57 @@ const createExperience = async (req, res) => {
     }
 };
 
+const updateExperience = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const {
+            company,
+            postion,
+            description,
+            start_date,
+            end_date
+        } = req.body;
+
+        const result = await pool.query(
+            `UPDATE experiences
+             SET company = $1,
+                 postion = $2,
+                 description = $3,
+                 start_date = $4,
+                 end_date = $5
+             WHERE id = $6
+             RETURNING *`,
+            [
+                company,
+                postion,
+                description,
+                start_date,
+                end_date,
+                id
+            ]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Experience not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: "Failed to update experience"
+        });
+    }
+};
 
 module.exports = {
     getExperiences,
     getExperienceById,
-    createExperience
+    createExperience,
+    updateExperience
 };
