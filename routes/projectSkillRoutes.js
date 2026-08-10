@@ -2,11 +2,16 @@ const express = require("express");
 
 const {
     createProjectSkill,
-    getProjectSkills
+    getSkillsByProject,
+    getAllProjectSkills
 } = require("../controllers/projectSkillController");
 
 const router = express.Router();
-router.get("/",getProjectSkills);
+
+router.get("/", getAllProjectSkills);
+
+router.get("/project/:id/skills", getSkillsByProject);
+
 router.post("/", createProjectSkill);
 
 module.exports = router;
