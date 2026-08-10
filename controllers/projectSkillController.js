@@ -79,8 +79,40 @@ const getAllProjectSkills = async (req, res) => {
         });
     }
 };
+const deleteProjectSkill = async (req, res) => {
+    try {
+        const { projectId, skillId } = req.params;
+
+        const result = await pool.query(
+            `DELETE FROM project_skills
+             WHERE project_id = $1
+             AND skill_id = $2
+             RETURNING *`,
+            [projectId, skillId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Project skill relationship not found"
+            });
+        }
+
+        res.json({
+            message: "Project skill relationship deleted successfully",
+            projectSkill: result.rows[0]
+        });
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: "Failed to delete project skill relationship"
+        });
+    }
+};
 module.exports = {
     createProjectSkill,
     getSkillsByProject,
-    getAllProjectSkills
+    getAllProjectSkills,
+    deleteProjectSkill
 };
