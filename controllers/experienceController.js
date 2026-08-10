@@ -48,8 +48,46 @@ const getExperienceById = async (req, res) => {
     }
 };
 
+const createExperience = async (req, res) => {
+    try {
+        const {
+            user_id,
+            company,
+            postion,
+            description,
+            start_date,
+            end_date
+        } = req.body;
+
+        const result = await pool.query(
+            `INSERT INTO experiences
+            (user_id, company, postion, description, start_date, end_date)
+            VALUES ($1, $2, $3, $4, $5, $6)
+            RETURNING *`,
+            [
+                user_id,
+                company,
+                postion,
+                description,
+                start_date,
+                end_date
+            ]
+        );
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: "Failed to create experience"
+        });
+    }
+};
+
 
 module.exports = {
     getExperiences,
-    getExperienceById
+    getExperienceById,
+    createExperience
 };
