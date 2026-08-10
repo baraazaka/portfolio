@@ -110,9 +110,39 @@ const deleteProjectSkill = async (req, res) => {
         });
     }
 };
+
+const getProjectsBySkill = async (req, res) => {
+    try {
+        const skillId = req.params.id;
+
+        const result = await pool.query(
+            `SELECT
+                p.id,
+                p.title,
+                p.description,
+                p.github_url,
+                p.live_url
+             FROM project_skills ps
+             INNER JOIN projects p
+                ON ps.project_id = p.id
+             WHERE ps.skill_id = $1`,
+            [skillId]
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: "Failed to fetch skill projects"
+        });
+    }
+};
 module.exports = {
     createProjectSkill,
     getSkillsByProject,
     getAllProjectSkills,
-    deleteProjectSkill
+    deleteProjectSkill,
+    getProjectsBySkill
 };
