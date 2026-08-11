@@ -5,7 +5,7 @@ const projectSkillRoutes = require("./routes/projectSkillRoutes");
 const userRoutes = require("./routes/userRoutes");
 const experienceRoutes = require("./routes/experienceRoutes");
 const messageRoutes = require("./routes/messageRoutes");
-
+const authRoutes = require("./routes/authRoutes");
 const app = express();
 
 app.use(express.json());
@@ -15,7 +15,7 @@ app.use("/api/skills",skillRoutes);
 app.use("/api/project-skills", projectSkillRoutes);
 app.use("/api/experiences", experienceRoutes);
 app.use("/api/messages", messageRoutes);
-
+app.use("/api/auth", authRoutes);
 app.get("/", (req, res) => {
     res.send("Portfolio API is running!");
 });

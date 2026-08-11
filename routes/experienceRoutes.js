@@ -13,7 +13,7 @@ const router = express.Router();
 router.get("/", getExperiences);
 router.get("/:id", getExperienceById);
 router.post("/",createExperience);
-router.update("/:id",updateExperience);
+router.put("/:id",updateExperience);
 router.delete("/:id",deleteExperience);
 
 module.exports = router;
