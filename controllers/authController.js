@@ -1,7 +1,10 @@
 const bcrypt = require("bcrypt");
 const pool = require("../db");
 const jwt = require("jsonwebtoken");
-const { registerSchema } = require("../validation/authValidation");
+const {
+    registerSchema,
+    loginSchema
+} = require("../validation/authValidation");
 
 const register = async (req, res) => {
     try {
@@ -48,8 +51,14 @@ const register = async (req, res) => {
 
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const validation = loginSchema.safeParse(req.body);
 
+        if (!validation.success) {
+            return res.status(400).json({
+                 error: validation.error.issues
+        }   );
+        }
+        const { email, password } = validation.data;
         const result = await pool.query(
             "SELECT * FROM users WHERE email = $1",
             [email]
