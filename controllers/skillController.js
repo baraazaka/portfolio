@@ -1,6 +1,5 @@
 const pool = require("../db");
 
-
 const getSkills = async (req, res) => {
     try {
         const result = await pool.query(
@@ -18,33 +17,43 @@ const getSkills = async (req, res) => {
     }
 };
 
-const getSkillById=async (req,res)=>{
-    try{
-        const id=req.params.id;
-        const result=await pool.query(
-            `
-            select * from skills where id=$1
-            `,[id]
-        );
-        if (result.rows.length==0){
-            res.status(404).json({error:"not found skills"});
 
-        };
+const getSkillById = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        const result = await pool.query(
+            "SELECT * FROM skills WHERE id = $1",
+            [id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Skill not found"
+            });
+        }
+
         res.json(result.rows[0]);
-    }catch(error){
+
+    } catch (error) {
         console.log(error);
-        res.status(500).json({error :"failed to featch "});
-    };
+
+        res.status(500).json({
+            error: "Failed to fetch skill"
+        });
+    }
 };
+
 
 const createSkill = async (req, res) => {
     try {
         const {
-            user_id,
             name,
             category,
             level
         } = req.body;
+
+        const user_id = req.user.userId;
 
         const result = await pool.query(
             `INSERT INTO skills
@@ -70,54 +79,85 @@ const createSkill = async (req, res) => {
     }
 };
 
-const updateSkill=async (req,res)=>{
-    try{
-        const id=req.params.id;
-        const{name,category,length}=req.body;
-        const result=await pool.query(
-            `
-            update skills
-            set name=$1و
-            category=$2,
-            level=$3
-            RETERNING *
-            
-            `,
+
+const updateSkill = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const user_id = req.user.userId;
+
+        const {
+            name,
+            category,
+            level
+        } = req.body;
+
+        const result = await pool.query(
+            `UPDATE skills
+             SET name = $1,
+                 category = $2,
+                 level = $3
+             WHERE id = $4 AND user_id = $5
+             RETURNING *`,
             [
-               
                 name,
                 category,
                 level,
-                id
+                id,
+                user_id
             ]
         );
-        if(result.rows.level==0){
-            res.status(404).json({error:"not found skills"});
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Skill not found or you are not allowed to update it"
+            });
         }
+
         res.json(result.rows[0]);
-    }catch(error){
+
+    } catch (error) {
         console.log(error);
-        res.status(500).json({error:"faild to update skill"});
+
+        res.status(500).json({
+            error: "Failed to update skill"
+        });
     }
 };
 
-const deleteSkill=async (req,res)=>{
-    try{
 
-    
-    const id=req.params.id;
-    const result=await pool.query("delete from skills where id=$1",[id]);
-    if(result.rows.length==0){
-        res.status(404).json({error:"not found skill"});
+const deleteSkill = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const user_id = req.user.userId;
 
-    }
-    res.json({error:"done selete",project:result.rows[0]});
+        const result = await pool.query(
+            `DELETE FROM skills
+             WHERE id = $1 AND user_id = $2
+             RETURNING *`,
+            [id, user_id]
+        );
 
-    }catch(error){
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Skill not found or you are not allowed to delete it"
+            });
+        }
+
+        res.json({
+            message: "Skill deleted successfully",
+            skill: result.rows[0]
+        });
+
+    } catch (error) {
         console.log(error);
-        res.status(500).json({error:"failed to delete skill"});
+
+        res.status(500).json({
+            error: "Failed to delete skill"
+        });
     }
-}
+};
+
+
 module.exports = {
     getSkills,
     createSkill,

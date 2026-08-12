@@ -1,6 +1,5 @@
 const pool = require("../db");
 
-
 const getProjects = async (req, res) => {
     try {
         const result = await pool.query(
@@ -46,17 +45,17 @@ const getProjectById = async (req, res) => {
 };
 
 
-
 const createProject = async (req, res) => {
     try {
         const {
-            user_id,
             title,
             description,
             image_url,
             github_url,
             live_url
         } = req.body;
+
+        const user_id = req.user.userId;
 
         const result = await pool.query(
             `INSERT INTO projects
@@ -85,10 +84,10 @@ const createProject = async (req, res) => {
 };
 
 
-
 const updateProject = async (req, res) => {
     try {
         const id = req.params.id;
+        const user_id = req.user.userId;
 
         const {
             title,
@@ -106,7 +105,7 @@ const updateProject = async (req, res) => {
                  github_url = $4,
                  live_url = $5,
                  updated_at = NOW()
-             WHERE id = $6
+             WHERE id = $6 AND user_id = $7
              RETURNING *`,
             [
                 title,
@@ -114,13 +113,14 @@ const updateProject = async (req, res) => {
                 image_url,
                 github_url,
                 live_url,
-                id
+                id,
+                user_id
             ]
         );
 
         if (result.rows.length === 0) {
             return res.status(404).json({
-                error: "Project not found"
+                error: "Project not found or you are not allowed to update it"
             });
         }
 
@@ -135,18 +135,22 @@ const updateProject = async (req, res) => {
     }
 };
 
+
 const deleteProject = async (req, res) => {
     try {
         const id = req.params.id;
+        const user_id = req.user.userId;
 
         const result = await pool.query(
-            "DELETE FROM projects WHERE id = $1 RETURNING *",
-            [id]
+            `DELETE FROM projects
+             WHERE id = $1 AND user_id = $2
+             RETURNING *`,
+            [id, user_id]
         );
 
         if (result.rows.length === 0) {
             return res.status(404).json({
-                error: "Project not found"
+                error: "Project not found or you are not allowed to delete it"
             });
         }
 
@@ -171,5 +175,4 @@ module.exports = {
     createProject,
     updateProject,
     deleteProject
-
 };

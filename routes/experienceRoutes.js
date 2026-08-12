@@ -1,4 +1,5 @@
 const express = require("express");
+const authenticateToken = require("../middleware/authMiddleware");
 
 const {
     getExperiences,
@@ -10,10 +11,14 @@ const {
 
 const router = express.Router();
 
+
 router.get("/", getExperiences);
 router.get("/:id", getExperienceById);
-router.post("/",createExperience);
-router.put("/:id",updateExperience);
-router.delete("/:id",deleteExperience);
+
+
+router.post("/", authenticateToken, createExperience);
+router.put("/:id", authenticateToken, updateExperience);
+router.delete("/:id", authenticateToken, deleteExperience);
+
 
 module.exports = router;

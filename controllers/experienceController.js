@@ -48,16 +48,19 @@ const getExperienceById = async (req, res) => {
     }
 };
 
+
 const createExperience = async (req, res) => {
     try {
         const {
-            user_id,
             company,
             postion,
             description,
             start_date,
             end_date
         } = req.body;
+
+        // Get user ID from JWT
+        const user_id = req.user.userId;
 
         const result = await pool.query(
             `INSERT INTO experiences
@@ -85,9 +88,11 @@ const createExperience = async (req, res) => {
     }
 };
 
+
 const updateExperience = async (req, res) => {
     try {
         const id = req.params.id;
+        const user_id = req.user.userId;
 
         const {
             company,
@@ -104,7 +109,7 @@ const updateExperience = async (req, res) => {
                  description = $3,
                  start_date = $4,
                  end_date = $5
-             WHERE id = $6
+             WHERE id = $6 AND user_id = $7
              RETURNING *`,
             [
                 company,
@@ -112,13 +117,14 @@ const updateExperience = async (req, res) => {
                 description,
                 start_date,
                 end_date,
-                id
+                id,
+                user_id
             ]
         );
 
         if (result.rows.length === 0) {
             return res.status(404).json({
-                error: "Experience not found"
+                error: "Experience not found or you are not allowed to update it"
             });
         }
 
@@ -133,20 +139,22 @@ const updateExperience = async (req, res) => {
     }
 };
 
+
 const deleteExperience = async (req, res) => {
     try {
         const id = req.params.id;
+        const user_id = req.user.userId;
 
         const result = await pool.query(
             `DELETE FROM experiences
-             WHERE id = $1
+             WHERE id = $1 AND user_id = $2
              RETURNING *`,
-            [id]
+            [id, user_id]
         );
 
         if (result.rows.length === 0) {
             return res.status(404).json({
-                error: "Experience not found"
+                error: "Experience not found or you are not allowed to delete it"
             });
         }
 

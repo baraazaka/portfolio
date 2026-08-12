@@ -1,4 +1,5 @@
 const express = require("express");
+const authenticateToken = require("../middleware/authMiddleware");
 
 const {
     getProjects,
@@ -10,13 +11,14 @@ const {
 
 const router = express.Router();
 
-router.get("/", getProjects);
 
+router.get("/", getProjects);
 router.get("/:id", getProjectById);
 
-router.post("/", createProject);
 
-router.put("/:id", updateProject);
-router.delete("/:id",deleteProject);
+router.post("/", authenticateToken, createProject);
+router.put("/:id", authenticateToken, updateProject);
+router.delete("/:id", authenticateToken, deleteProject);
+
 
 module.exports = router;

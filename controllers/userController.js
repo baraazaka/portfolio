@@ -1,9 +1,12 @@
 const pool = require("../db");
 
+
 const getUsers = async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT id, name, email, created_at FROM users ORDER BY created_at DESC"
+            `SELECT id, name, email, created_at
+             FROM users
+             ORDER BY created_at DESC`
         );
 
         res.json(result.rows);
@@ -23,7 +26,9 @@ const getUserById = async (req, res) => {
         const id = req.params.id;
 
         const result = await pool.query(
-            "SELECT id, name, email, created_at FROM users WHERE id = $1",
+            `SELECT id, name, email, created_at
+             FROM users
+             WHERE id = $1`,
             [id]
         );
 
@@ -43,6 +48,7 @@ const getUserById = async (req, res) => {
         });
     }
 };
+
 
 const createUser = async (req, res) => {
     try {
@@ -67,11 +73,23 @@ const createUser = async (req, res) => {
     }
 };
 
+
 const updateUser = async (req, res) => {
     try {
         const id = req.params.id;
+        const user_id = req.user.userId;
 
-        const { name, email, password } = req.body;
+        const {
+            name,
+            email,
+            password
+        } = req.body;
+
+        if (Number(id) !== Number(user_id)) {
+            return res.status(403).json({
+                error: "You are not allowed to update this user"
+            });
+        }
 
         const result = await pool.query(
             `UPDATE users
@@ -80,7 +98,12 @@ const updateUser = async (req, res) => {
                  password = $3
              WHERE id = $4
              RETURNING id, name, email, created_at`,
-            [name, email, password, id]
+            [
+                name,
+                email,
+                password,
+                id
+            ]
         );
 
         if (result.rows.length === 0) {
@@ -100,9 +123,17 @@ const updateUser = async (req, res) => {
     }
 };
 
+
 const deleteUser = async (req, res) => {
     try {
         const id = req.params.id;
+        const user_id = req.user.userId;
+
+        if (Number(id) !== Number(user_id)) {
+            return res.status(403).json({
+                error: "You are not allowed to delete this user"
+            });
+        }
 
         const result = await pool.query(
             `DELETE FROM users
@@ -130,6 +161,8 @@ const deleteUser = async (req, res) => {
         });
     }
 };
+
+
 module.exports = {
     getUsers,
     getUserById,

@@ -1,4 +1,6 @@
 const express = require("express");
+const authenticateToken = require("../middleware/authMiddleware");
+
 const {
     createProjectSkill,
     getSkillsByProject,
@@ -9,14 +11,17 @@ const {
 
 const router = express.Router();
 
+
 router.get("/", getAllProjectSkills);
 
-router.get("/project/:id/skills", getSkillsByProject);
+router.get("/project/:id/skills",getSkillsByProject);
 
-router.get("/skill/:id/projects", getProjectsBySkill);
+router.get("/skill/:id/projects",getProjectsBySkill);
 
-router.post("/", createProjectSkill);
 
-router.delete("/:projectId/:skillId", deleteProjectSkill);
+router.post("/",authenticateToken,createProjectSkill);
+
+router.delete("/:projectId/:skillId", authenticateToken,deleteProjectSkill);
+
 
 module.exports = router;

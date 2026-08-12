@@ -4,6 +4,33 @@ const pool = require("../db");
 const createProjectSkill = async (req, res) => {
     try {
         const { project_id, skill_id } = req.body;
+        const user_id = req.user.userId;
+
+        const projectResult = await pool.query(
+            `SELECT id
+             FROM projects
+             WHERE id = $1 AND user_id = $2`,
+            [project_id, user_id]
+        );
+
+        if (projectResult.rows.length === 0) {
+            return res.status(403).json({
+                error: "You are not allowed to modify this project"
+            });
+        }
+
+        const skillResult = await pool.query(
+            `SELECT id
+             FROM skills
+             WHERE id = $1 AND user_id = $2`,
+            [skill_id, user_id]
+        );
+
+        if (skillResult.rows.length === 0) {
+            return res.status(403).json({
+                error: "You are not allowed to use this skill"
+            });
+        }
 
         const result = await pool.query(
             `INSERT INTO project_skills
@@ -53,6 +80,7 @@ const getSkillsByProject = async (req, res) => {
     }
 };
 
+
 const getAllProjectSkills = async (req, res) => {
     try {
         const result = await pool.query(
@@ -79,9 +107,25 @@ const getAllProjectSkills = async (req, res) => {
         });
     }
 };
+
+
 const deleteProjectSkill = async (req, res) => {
     try {
         const { projectId, skillId } = req.params;
+        const user_id = req.user.userId;
+
+        const projectResult = await pool.query(
+            `SELECT id
+             FROM projects
+             WHERE id = $1 AND user_id = $2`,
+            [projectId, user_id]
+        );
+
+        if (projectResult.rows.length === 0) {
+            return res.status(403).json({
+                error: "You are not allowed to modify this project"
+            });
+        }
 
         const result = await pool.query(
             `DELETE FROM project_skills
@@ -111,6 +155,7 @@ const deleteProjectSkill = async (req, res) => {
     }
 };
 
+
 const getProjectsBySkill = async (req, res) => {
     try {
         const skillId = req.params.id;
@@ -139,6 +184,8 @@ const getProjectsBySkill = async (req, res) => {
         });
     }
 };
+
+
 module.exports = {
     createProjectSkill,
     getSkillsByProject,
