@@ -1,9 +1,19 @@
 const bcrypt = require("bcrypt");
 const pool = require("../db");
 const jwt = require("jsonwebtoken");
+const { registerSchema } = require("../validation/authValidation");
+
 const register = async (req, res) => {
     try {
-        const { name, email, password } = req.body;
+        const validation = registerSchema.safeParse(req.body);
+
+        if (!validation.success) {
+            return res.status(400).json({
+                error: validation.error.issues
+            });
+        }
+
+        const { name, email, password } = validation.data;
 
         const existingUser = await pool.query(
             "SELECT id FROM users WHERE email = $1",
