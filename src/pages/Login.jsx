@@ -13,8 +13,8 @@ async function handleLogin(e) {
         e.preventDefault();
         try{
             const response=await api.post("/auth/Login",{email,password});
-            console.log(response.data);
-            navigate("/Home")
+            localStorage.setItem("token", response.data.token);
+            navigate("/")
 
         }catch(error){
             console.log(error);
