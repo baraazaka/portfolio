@@ -44,6 +44,28 @@ const getProjectById = async (req, res) => {
     }
 };
 
+const getMyProjects = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const result = await pool.query(
+            `SELECT *
+             FROM projects
+             WHERE user_id = $1
+             ORDER BY created_at DESC`,
+            [userId]
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to fetch your projects"
+        });
+    }
+};
 
 const createProject = async (req, res) => {
     try {
@@ -174,5 +196,6 @@ module.exports = {
     getProjectById,
     createProject,
     updateProject,
-    deleteProject
+    deleteProject,
+    getMyProjects
 };

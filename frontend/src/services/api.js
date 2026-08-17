@@ -22,4 +22,8 @@ export const getProjects = async () => {
     const response = await api.get("/projects");
     return response.data;
 };
+export async function getMyProjects() {
+    const response = await api.get("/projects/my");
+    return response.data;
+}
 export default api;

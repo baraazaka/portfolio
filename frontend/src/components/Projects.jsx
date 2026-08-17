@@ -4,7 +4,8 @@ import ProjectCard from "./ProjectCard";
 
 function Projects() {
     const [projects, setProjects] = useState([]);
-
+    const [editingProject, setEditingProject] = useState(null);
+    const [saving, setSaving] = useState(false);
     useEffect(() => {
         async function getProjects() {
             try {
@@ -18,6 +19,7 @@ function Projects() {
 
         getProjects();
     }, []);
+    
 
     return (
         <section className="bg-gray-50">
