@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Skills from "./pages/Skills";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -17,6 +18,7 @@ function App() {
             <Routes>
 
                 {/* Public Pages */}
+
                 <Route
                     path="/"
                     element={<Home />}
@@ -34,6 +36,7 @@ function App() {
 
 
                 {/* Protected Dashboard */}
+
                 <Route
                     path="/Dashboard"
                     element={
@@ -42,6 +45,7 @@ function App() {
                         </ProtectedRoute>
                     }
                 >
+
                     {/* /Dashboard */}
                     <Route
                         index
@@ -52,6 +56,12 @@ function App() {
                     <Route
                         path="Projects"
                         element={<Projects />}
+                    />
+
+                    {/* /Dashboard/Skills */}
+                    <Route
+                        path="Skills"
+                        element={<Skills />}
                     />
 
                 </Route>

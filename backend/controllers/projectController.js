@@ -1,15 +1,36 @@
 const pool = require("../db");
 
+
+// Get all projects
 const getProjects = async (req, res) => {
     try {
         const result = await pool.query(
-            "SELECT * FROM projects ORDER BY created_at DESC"
+            `SELECT
+                p.*,
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'id', s.id,
+                            'name', s.name,
+                            'category', s.category,
+                            'level', s.level
+                        )
+                    ) FILTER (WHERE s.id IS NOT NULL),
+                    '[]'
+                ) AS skills
+             FROM projects p
+             LEFT JOIN project_skills ps
+                ON p.id = ps.project_id
+             LEFT JOIN skills s
+                ON ps.skill_id = s.id
+             GROUP BY p.id
+             ORDER BY p.created_at DESC`
         );
 
         res.json(result.rows);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to fetch projects"
@@ -18,6 +39,7 @@ const getProjects = async (req, res) => {
 };
 
 
+// Get project by ID
 const getProjectById = async (req, res) => {
     try {
         const id = req.params.id;
@@ -44,15 +66,34 @@ const getProjectById = async (req, res) => {
     }
 };
 
+
+// Get my projects
 const getMyProjects = async (req, res) => {
     try {
         const userId = req.user.userId;
 
         const result = await pool.query(
-            `SELECT *
-             FROM projects
-             WHERE user_id = $1
-             ORDER BY created_at DESC`,
+            `SELECT
+                p.*,
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'id', s.id,
+                            'name', s.name,
+                            'category', s.category,
+                            'level', s.level
+                        )
+                    ) FILTER (WHERE s.id IS NOT NULL),
+                    '[]'
+                ) AS skills
+             FROM projects p
+             LEFT JOIN project_skills ps
+                ON p.id = ps.project_id
+             LEFT JOIN skills s
+                ON ps.skill_id = s.id
+             WHERE p.user_id = $1
+             GROUP BY p.id
+             ORDER BY p.created_at DESC`,
             [userId]
         );
 
@@ -66,20 +107,27 @@ const getMyProjects = async (req, res) => {
         });
     }
 };
-
+// Create project
 const createProject = async (req, res) => {
+    const client = await pool.connect();
+
     try {
         const {
             title,
             description,
             image_url,
             github_url,
-            live_url
+            live_url,
+            skills = []
         } = req.body;
 
         const user_id = req.user.userId;
 
-        const result = await pool.query(
+        await client.query("BEGIN");
+
+
+        // Create project
+        const projectResult = await client.query(
             `INSERT INTO projects
             (user_id, title, description, image_url, github_url, live_url)
             VALUES ($1, $2, $3, $4, $5, $6)
@@ -94,19 +142,69 @@ const createProject = async (req, res) => {
             ]
         );
 
-        res.status(201).json(result.rows[0]);
+        const project = projectResult.rows[0];
+
+
+        // Make sure skills belong to the current user
+        if (skills.length > 0) {
+
+            const skillResult = await client.query(
+                `SELECT id
+                 FROM skills
+                 WHERE id = ANY($1::int[])
+                 AND user_id = $2`,
+                [skills, user_id]
+            );
+
+            if (skillResult.rows.length !== skills.length) {
+                await client.query("ROLLBACK");
+
+                return res.status(400).json({
+                    error: "One or more selected skills are invalid"
+                });
+            }
+
+
+            // Add project-skills relationships
+            for (const skillId of skills) {
+                await client.query(
+                    `INSERT INTO project_skills
+                    (project_id, skill_id)
+                    VALUES ($1, $2)`,
+                    [project.id, skillId]
+                );
+            }
+        }
+
+
+        await client.query("COMMIT");
+
+
+        res.status(201).json({
+            ...project,
+            skills
+        });
 
     } catch (error) {
-        console.log(error);
+
+        await client.query("ROLLBACK");
+
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to create project"
         });
+
+    } finally {
+        client.release();
     }
 };
 
 
+// Update project
 const updateProject = async (req, res) => {
+    const client = await pool.connect();
+
     try {
         const id = req.params.id;
         const user_id = req.user.userId;
@@ -116,10 +214,15 @@ const updateProject = async (req, res) => {
             description,
             image_url,
             github_url,
-            live_url
+            live_url,
+            skills = []
         } = req.body;
 
-        const result = await pool.query(
+        await client.query("BEGIN");
+
+
+        // Update project
+        const projectResult = await client.query(
             `UPDATE projects
              SET title = $1,
                  description = $2,
@@ -127,7 +230,8 @@ const updateProject = async (req, res) => {
                  github_url = $4,
                  live_url = $5,
                  updated_at = NOW()
-             WHERE id = $6 AND user_id = $7
+             WHERE id = $6
+             AND user_id = $7
              RETURNING *`,
             [
                 title,
@@ -140,41 +244,120 @@ const updateProject = async (req, res) => {
             ]
         );
 
-        if (result.rows.length === 0) {
+
+        if (projectResult.rows.length === 0) {
+            await client.query("ROLLBACK");
+
             return res.status(404).json({
                 error: "Project not found or you are not allowed to update it"
             });
         }
 
-        res.json(result.rows[0]);
+
+        // Make sure skills belong to current user
+        if (skills.length > 0) {
+
+            const skillResult = await client.query(
+                `SELECT id
+                 FROM skills
+                 WHERE id = ANY($1::int[])
+                 AND user_id = $2`,
+                [skills, user_id]
+            );
+
+            if (skillResult.rows.length !== skills.length) {
+                await client.query("ROLLBACK");
+
+                return res.status(400).json({
+                    error: "One or more selected skills are invalid"
+                });
+            }
+        }
+
+
+        // Remove old skills
+        await client.query(
+            `DELETE FROM project_skills
+             WHERE project_id = $1`,
+            [id]
+        );
+
+
+        // Add new skills
+        for (const skillId of skills) {
+            await client.query(
+                `INSERT INTO project_skills
+                (project_id, skill_id)
+                VALUES ($1, $2)`,
+                [id, skillId]
+            );
+        }
+
+
+        await client.query("COMMIT");
+
+
+        res.json({
+            ...projectResult.rows[0],
+            skills
+        });
 
     } catch (error) {
-        console.log(error);
+
+        await client.query("ROLLBACK");
+
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to update project"
         });
+
+    } finally {
+        client.release();
     }
 };
 
 
+// Delete project
 const deleteProject = async (req, res) => {
+    const client = await pool.connect();
+
     try {
         const id = req.params.id;
         const user_id = req.user.userId;
 
-        const result = await pool.query(
+        await client.query("BEGIN");
+
+
+        // Delete project skills first
+        await client.query(
+            `DELETE FROM project_skills
+             WHERE project_id = $1`,
+            [id]
+        );
+
+
+        // Delete project
+        const result = await client.query(
             `DELETE FROM projects
-             WHERE id = $1 AND user_id = $2
+             WHERE id = $1
+             AND user_id = $2
              RETURNING *`,
             [id, user_id]
         );
 
+
         if (result.rows.length === 0) {
+            await client.query("ROLLBACK");
+
             return res.status(404).json({
                 error: "Project not found or you are not allowed to delete it"
             });
         }
+
+
+        await client.query("COMMIT");
+
 
         res.json({
             message: "Project deleted successfully",
@@ -182,11 +365,17 @@ const deleteProject = async (req, res) => {
         });
 
     } catch (error) {
+
+        await client.query("ROLLBACK");
+
         console.error(error);
 
         res.status(500).json({
             error: "Failed to delete project"
         });
+
+    } finally {
+        client.release();
     }
 };
 

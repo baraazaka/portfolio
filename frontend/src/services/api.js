@@ -25,5 +25,10 @@ export const getProjects = async () => {
 export async function getMyProjects() {
     const response = await api.get("/projects/my");
     return response.data;
-}
+};
+export const getMySkills = async () => {
+    const response = await api.get("/skills/my");
+    return response.data;
+};
+
 export default api;

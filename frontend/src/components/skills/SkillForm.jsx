@@ -14,7 +14,7 @@ function SkillForm({
         if (skill) {
             setName(skill.name || "");
             setCategory(skill.category || "");
-            setLevel(skill.level || "");
+            setLevel(skill.level ?? "");
         } else {
             setName("");
             setCategory("");
@@ -28,7 +28,7 @@ function SkillForm({
         onSubmit({
             name,
             category,
-            level
+            level: Number(level)
         });
     }
 
@@ -45,7 +45,7 @@ function SkillForm({
 
             <div className="mt-6 grid gap-5">
 
-                {/* Name */}
+                {/* Skill Name */}
                 <div>
                     <label className="text-sm font-medium text-gray-700">
                         Skill Name
@@ -79,34 +79,32 @@ function SkillForm({
                 </div>
 
 
-                {/* Level */}
+                {/* Skill Level */}
                 <div>
                     <label className="text-sm font-medium text-gray-700">
-                        Level
+                        Skill Level
                     </label>
 
-                    <select
-                        value={level}
-                        onChange={(e) => setLevel(e.target.value)}
-                        required
-                        className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-3 outline-none focus:border-black"
-                    >
-                        <option value="">
-                            Select level
-                        </option>
+                    <div className="mt-2 flex items-center gap-3">
+                        <input
+                            type="number"
+                            min="0"
+                            max="100"
+                            value={level}
+                            onChange={(e) => setLevel(e.target.value)}
+                            placeholder="e.g. 85"
+                            required
+                            className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
+                        />
 
-                        <option value="Beginner">
-                            Beginner
-                        </option>
+                        <span className="text-lg font-semibold text-gray-600">
+                            %
+                        </span>
+                    </div>
 
-                        <option value="Intermediate">
-                            Intermediate
-                        </option>
-
-                        <option value="Advanced">
-                            Advanced
-                        </option>
-                    </select>
+                    <p className="mt-2 text-xs text-gray-500">
+                        Enter a value between 0 and 100.
+                    </p>
                 </div>
 
             </div>

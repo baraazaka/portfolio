@@ -10,7 +10,7 @@ const {
     deleteSkill
 } = require("../controllers/skillController");
 const router = express.Router();
-
+console.log("SKILL ROUTES LOADED");
 router.get("/my", authenticateToken, getMySkills);
 
 router.get("/", getSkills);
