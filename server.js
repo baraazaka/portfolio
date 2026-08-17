@@ -7,8 +7,11 @@ const experienceRoutes = require("./routes/experienceRoutes");
 const messageRoutes = require("./routes/messageRoutes");
 const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
+const cors = require("cors");
 const app = express();
-
+app.use(cors({
+    origin: "http://localhost:5173"
+}));
 app.use(express.json());
 app.use("/api/users", userRoutes);
 app.use("/api/projects", projectRoutes);
