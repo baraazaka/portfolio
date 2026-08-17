@@ -3,14 +3,15 @@ const authenticateToken = require("../middleware/authMiddleware");
 
 const {
     getSkills,
-    createSkill,
+    getMySkills,
     getSkillById,
+    createSkill,
     updateSkill,
     deleteSkill
 } = require("../controllers/skillController");
-
 const router = express.Router();
 
+router.get("/my", authenticateToken, getMySkills);
 
 router.get("/", getSkills);
 router.get("/:id", getSkillById);

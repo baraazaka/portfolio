@@ -43,7 +43,28 @@ const getSkillById = async (req, res) => {
         });
     }
 };
+const getMySkills = async (req, res) => {
+    try {
+        const user_id = req.user.userId;
 
+        const result = await pool.query(
+            `SELECT *
+             FROM skills
+             WHERE user_id = $1
+             ORDER BY created_at DESC`,
+            [user_id]
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.log(error);
+
+        res.status(500).json({
+            error: "Failed to fetch your skills"
+        });
+    }
+};
 
 const createSkill = async (req, res) => {
     try {
@@ -163,5 +184,6 @@ module.exports = {
     createSkill,
     getSkillById,
     updateSkill,
-    deleteSkill
+    deleteSkill,
+    getMySkills
 };

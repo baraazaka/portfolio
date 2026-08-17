@@ -1,97 +1,92 @@
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
+import logo from "../../assets/logo.png";
 
-function DashboardSidebar({ isOpen, setIsOpen }) {
+function DashboardSidebar() {
+    const links = [
+        {
+            name: "Overview",
+            path: "/Dashboard"
+        },
+        {
+            name: "Projects",
+            path: "/Dashboard/Projects"
+        },
+        {
+            name: "Skills",
+            path: "/Dashboard/Skills"
+        },
+        {
+            name: "Experience",
+            path: "/Dashboard/Experience"
+        },
+        {
+            name: "Messages",
+            path: "/Dashboard/Messages"
+        }
+    ];
+
     return (
-        <>
-            {isOpen && (
-                <div
-                    className="fixed inset-0 z-40 bg-black/40 md:hidden"
-                    onClick={() => setIsOpen(false)}
-                />
-            )}
+        <aside className="fixed left-0 top-0 z-40 hidden h-screen w-64 border-r border-gray-200 bg-white md:block">
 
-            <aside
-                className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r border-gray-200 bg-white transition-transform duration-300 ${
-                    isOpen ? "translate-x-0" : "-translate-x-full"
-                } md:static md:z-auto md:translate-x-0`}
-            >
-                <div className="flex items-center justify-between border-b border-gray-100 px-6 py-6">
+            <div className="flex h-full flex-col p-6">
+
+                {/* Logo */}
+                <div className="mb-8">
                     <Link
-                        to="/"
-                        className="text-xl font-bold tracking-tight text-gray-900"
+                        to="/Dashboard"
+                        className="flex items-center"
                     >
-                        Portfolio
+                        <img
+                            src={logo}
+                            alt="Bara Logo"
+                            className="h-14 w-auto object-contain"
+                        />
                     </Link>
 
-                    <button
-                        type="button"
-                        onClick={() => setIsOpen(false)}
-                        className="text-xl text-gray-500 transition hover:text-gray-900 md:hidden"
-                        aria-label="Close menu"
-                    >
-                        ✕
-                    </button>
+                    <p className="mt-2 text-sm text-gray-500">
+                        Portfolio Dashboard
+                    </p>
                 </div>
 
-                <nav className="flex-1 px-4 py-6">
-                    <p className="mb-3 px-3 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                        Menu
-                    </p>
 
-                    <div className="space-y-1">
-                        <Link
-                            to="/dashboard"
-                            onClick={() => setIsOpen(false)}
-                            className="block rounded-lg bg-gray-100 px-3 py-2.5 text-sm font-medium text-gray-900"
-                        >
-                            Overview
-                        </Link>
+                {/* Navigation */}
+                <nav className="flex flex-col gap-2">
 
-                        <Link
-                            to="/dashboard/projects"
-                            onClick={() => setIsOpen(false)}
-                            className="block rounded-lg px-3 py-2.5 text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                    {links.map((link) => (
+                        <NavLink
+                            key={link.path}
+                            to={link.path}
+                            end={link.path === "/Dashboard"}
+                            className={({ isActive }) =>
+                                `rounded-xl px-4 py-3 text-sm font-medium transition ${
+                                    isActive
+                                        ? "bg-black text-white"
+                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                }`
+                            }
                         >
-                            Projects
-                        </Link>
+                            {link.name}
+                        </NavLink>
+                    ))}
 
-                        <Link
-                            to="/dashboard/skills"
-                            onClick={() => setIsOpen(false)}
-                            className="block rounded-lg px-3 py-2.5 text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-                        >
-                            Skills
-                        </Link>
-
-                        <Link
-                            to="/dashboard/experience"
-                            onClick={() => setIsOpen(false)}
-                            className="block rounded-lg px-3 py-2.5 text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-                        >
-                            Experience
-                        </Link>
-
-                        <Link
-                            to="/dashboard/messages"
-                            onClick={() => setIsOpen(false)}
-                            className="block rounded-lg px-3 py-2.5 text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
-                        >
-                            Messages
-                        </Link>
-                    </div>
                 </nav>
 
-                <div className="border-t border-gray-100 p-4">
+
+                {/* Bottom */}
+                <div className="mt-auto border-t border-gray-200 pt-5">
+
                     <Link
                         to="/"
-                        onClick={() => setIsOpen(false)}
-                        className="block rounded-lg px-3 py-2.5 text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                        className="block rounded-xl px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-100"
                     >
-                        Back to website
+                        ← Back to website
                     </Link>
+
                 </div>
-            </aside>
-        </>
+
+            </div>
+
+        </aside>
     );
 }
 

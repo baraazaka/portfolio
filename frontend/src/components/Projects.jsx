@@ -4,8 +4,7 @@ import ProjectCard from "./ProjectCard";
 
 function Projects() {
     const [projects, setProjects] = useState([]);
-    const [editingProject, setEditingProject] = useState(null);
-    const [saving, setSaving] = useState(false);
+
     useEffect(() => {
         async function getProjects() {
             try {
