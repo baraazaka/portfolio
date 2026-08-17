@@ -18,5 +18,8 @@ export const getDashboardStats = async () => {
     const response = await api.get("/dashboard");
     return response.data;
 };
-
+export const getProjects = async () => {
+    const response = await api.get("/projects");
+    return response.data;
+};
 export default api;
