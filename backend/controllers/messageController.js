@@ -1,5 +1,6 @@
 const pool = require("../db");
 
+
 const getMessages = async (req, res) => {
     try {
         const result = await pool.query(
@@ -11,7 +12,7 @@ const getMessages = async (req, res) => {
         res.json(result.rows);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to fetch messages"
@@ -40,13 +41,14 @@ const getMessageById = async (req, res) => {
         res.json(result.rows[0]);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to fetch message"
         });
     }
 };
+
 
 const createMessage = async (req, res) => {
     try {
@@ -55,6 +57,12 @@ const createMessage = async (req, res) => {
             email,
             message
         } = req.body;
+
+        if (!name || !email || !message) {
+            return res.status(400).json({
+                error: "Name, email and message are required"
+            });
+        }
 
         const result = await pool.query(
             `INSERT INTO messages
@@ -71,13 +79,14 @@ const createMessage = async (req, res) => {
         res.status(201).json(result.rows[0]);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to create message"
         });
     }
 };
+
 
 const deleteMessage = async (req, res) => {
     try {
@@ -102,13 +111,15 @@ const deleteMessage = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to delete message"
         });
     }
 };
+
+
 module.exports = {
     getMessages,
     getMessageById,
