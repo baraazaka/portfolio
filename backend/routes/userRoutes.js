@@ -6,13 +6,23 @@ const {
     getUserById,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    getPublicPortfolio,
+    publishPortfolio
 } = require("../controllers/userController");
-
 const router = express.Router();
 
 
 router.get("/", getUsers);
+router.get(
+    "/portfolio/:username",
+    getPublicPortfolio
+);
+router.put(
+    "/:id/portfolio",
+    authenticateToken,
+    publishPortfolio
+);
 router.get("/:id", getUserById);
 
 

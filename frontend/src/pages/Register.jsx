@@ -8,7 +8,7 @@ function Register() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
-
+    const [username, setUsername] = useState("");
     const navigate = useNavigate();
 
     async function handleRegister(e) {
@@ -16,10 +16,11 @@ function Register() {
 
         try {
             const response = await api.post("/auth/register", {
-                name,
-                email,
-                password
-            });
+    name,
+    username,
+    email,
+    password
+});
 
             console.log(response.data);
 
@@ -90,7 +91,28 @@ function Register() {
                                 className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white focus:ring-2 focus:ring-gray-100"
                             />
                         </div>
+<div>
+    <label
+        htmlFor="username"
+        className="mb-2 block text-sm font-medium text-gray-700"
+    >
+        Username
+    </label>
 
+    <input
+        id="username"
+        type="text"
+        placeholder="baraa"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        required
+        className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-gray-400 focus:bg-white focus:ring-2 focus:ring-gray-100"
+    />
+
+    <p className="mt-2 text-xs text-gray-400">
+        This will be used for your public portfolio link.
+    </p>
+</div>
                         <div>
                             <label
                                 htmlFor="email"

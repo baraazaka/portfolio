@@ -16,26 +16,44 @@ const register = async (req, res) => {
             });
         }
 
-        const { name, email, password } = validation.data;
+        const {
+            name,
+            username,
+            email,
+            password
+        } = validation.data;
 
         const existingUser = await pool.query(
-            "SELECT id FROM users WHERE email = $1",
-            [email]
+            "SELECT id FROM users WHERE email = $1 OR username = $2",
+            [email, username]
         );
 
         if (existingUser.rows.length > 0) {
             return res.status(409).json({
-                error: "Email already exists"
+                error: "Email or username already exists"
             });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const result = await pool.query(
-            `INSERT INTO users (name, email, password)
-             VALUES ($1, $2, $3)
-             RETURNING id, name, email, created_at`,
-            [name, email, hashedPassword]
+            `INSERT INTO users
+                (name, username, email, password)
+             VALUES
+                ($1, $2, $3, $4)
+             RETURNING
+                id,
+                name,
+                username,
+                email,
+                portfolio_published,
+                created_at`,
+            [
+                name,
+                username,
+                email,
+                hashedPassword
+            ]
         );
 
         res.status(201).json(result.rows[0]);
@@ -48,7 +66,6 @@ const register = async (req, res) => {
         });
     }
 };
-
 const login = async (req, res) => {
     try {
         const validation = loginSchema.safeParse(req.body);
