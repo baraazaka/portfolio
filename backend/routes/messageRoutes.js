@@ -11,10 +11,13 @@ const {
 const router = express.Router();
 
 
-router.post("/", createMessage);
+router.post("/:userId", createMessage);
 
-
-router.get("/", authenticateToken, getMessages);
+router.get(
+    "/",
+    authenticateToken,
+    getMessages
+);
 
 router.get(
     "/:id",
@@ -27,6 +30,5 @@ router.delete(
     authenticateToken,
     deleteMessage
 );
-
 
 module.exports = router;

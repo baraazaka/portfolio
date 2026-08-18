@@ -1,81 +1,67 @@
-import EditProjectButton from "./EditProjectButton";
-import DeleteProjectButton from "./DeleteProjectButton";
-
 function ProjectCard({
     project,
+    onDelete,
     onEdit,
-    onDelete
+    onPublish
 }) {
     return (
-        <div className="group overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-lg">
+        <article className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition hover:-translate-y-1 hover:shadow-xl">
 
             {/* Image */}
-            {project.image_url ? (
-                <div className="h-48 overflow-hidden bg-gray-100">
+            <div className="aspect-video overflow-hidden bg-gray-100">
+
+                {project.image_url ? (
                     <img
                         src={project.image_url}
                         alt={project.title}
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
-                </div>
-            ) : (
-                <div className="flex h-48 items-center justify-center bg-gray-100 text-sm text-gray-400">
-                    No image
-                </div>
-            )}
-
-
-            {/* Content */}
-            <div className="p-6">
-
-                {/* Title */}
-                <h2 className="text-xl font-semibold text-gray-900">
-                    {project.title}
-                </h2>
-
-
-                {/* Description */}
-                {project.description && (
-                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-gray-500">
-                        {project.description}
-                    </p>
-                )}
-
-
-                {/* Skills */}
-                {project.skills?.length > 0 && (
-                    <div className="mt-5">
-
-                        <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
-                            Technologies
-                        </p>
-
-                        <div className="flex flex-wrap gap-2">
-
-                            {project.skills.map((skill) => (
-                                <span
-                                    key={skill.id}
-                                    className="rounded-full bg-gray-100 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-200"
-                                >
-                                    {skill.name}
-                                </span>
-                            ))}
-
-                        </div>
-
+                ) : (
+                    <div className="flex h-full items-center justify-center text-sm text-gray-400">
+                        No image
                     </div>
                 )}
 
+            </div>
+
+
+            <div className="p-6">
+
+                {/* Header */}
+                <div className="flex items-start justify-between gap-4">
+
+                    <h3 className="text-xl font-semibold text-gray-900">
+                        {project.title}
+                    </h3>
+
+                    {project.is_published ? (
+                        <span className="shrink-0 rounded-full bg-green-50 px-3 py-1 text-xs font-semibold text-green-700">
+                            Published
+                        </span>
+                    ) : (
+                        <span className="shrink-0 rounded-full bg-gray-100 px-3 py-1 text-xs font-semibold text-gray-500">
+                            Draft
+                        </span>
+                    )}
+
+                </div>
+
+
+                {/* Description */}
+                <p className="mt-3 line-clamp-3 text-sm leading-6 text-gray-600">
+                    {project.description || "No description"}
+                </p>
+
 
                 {/* Links */}
-                <div className="mt-6 flex flex-wrap gap-3">
+                <div className="mt-5 flex flex-wrap gap-2">
 
                     {project.github_url && (
                         <a
                             href={project.github_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="rounded-xl border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                            className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                         >
                             GitHub
                         </a>
@@ -86,7 +72,7 @@ function ProjectCard({
                             href={project.live_url}
                             target="_blank"
                             rel="noreferrer"
-                            className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+                            className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-50"
                         >
                             Live Demo
                         </a>
@@ -96,21 +82,45 @@ function ProjectCard({
 
 
                 {/* Actions */}
-                <div className="mt-6 flex gap-3 border-t border-gray-100 pt-4 opacity-70 transition group-hover:opacity-100">
+                <div className="mt-6 flex flex-wrap gap-2 border-t border-gray-100 pt-5">
 
-                    <EditProjectButton
-                        onEdit={() => onEdit(project)}
-                    />
+                    <button
+                        type="button"
+                        onClick={() => onEdit(project)}
+                        className="rounded-xl border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    >
+                        Edit
+                    </button>
 
-                    <DeleteProjectButton
-                        onDelete={() => onDelete(project.id)}
-                    />
+
+                    <button
+                        type="button"
+                        onClick={() => onPublish(project.id)}
+                        className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                            project.is_published
+                                ? "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                : "bg-green-600 text-white hover:bg-green-700"
+                        }`}
+                    >
+                        {project.is_published
+                            ? "Unpublish"
+                            : "Publish"}
+                    </button>
+
+
+                    <button
+                        type="button"
+                        onClick={() => onDelete(project.id)}
+                        className="rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100"
+                    >
+                        Delete
+                    </button>
 
                 </div>
 
             </div>
 
-        </div>
+        </article>
     );
 }
 

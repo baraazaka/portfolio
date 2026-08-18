@@ -7,27 +7,73 @@ const {
     getProjectById,
     createProject,
     updateProject,
-    deleteProject
+    deleteProject,
+    toggleProjectPublish,
+    getFeaturedProjects
 } = require("../controllers/projectController");
 
 const router = express.Router();
 
-// Public - all projects
-router.get("/", getProjects);
 
-// Protected - current user's projects
-router.get("/my", authenticateToken, getMyProjects);
+// My projects
+router.get(
+    "/my",
+    authenticateToken,
+    getMyProjects
+);
 
-// Public - single project
-router.get("/:id", getProjectById);
 
-// Protected - create
-router.post("/", authenticateToken, createProject);
+// Featured projects
+router.get(
+    "/featured",
+    getFeaturedProjects
+);
 
-// Protected - update
-router.put("/:id", authenticateToken, updateProject);
 
-// Protected - delete
-router.delete("/:id", authenticateToken, deleteProject);
+// All published projects
+router.get(
+    "/",
+    getProjects
+);
+
+
+// Publish / Unpublish
+router.patch(
+    "/:id/publish",
+    authenticateToken,
+    toggleProjectPublish
+);
+
+
+// Get project by ID
+router.get(
+    "/:id",
+    getProjectById
+);
+
+
+// Create project
+router.post(
+    "/",
+    authenticateToken,
+    createProject
+);
+
+
+// Update project
+router.put(
+    "/:id",
+    authenticateToken,
+    updateProject
+);
+
+
+// Delete project
+router.delete(
+    "/:id",
+    authenticateToken,
+    deleteProject
+);
+
 
 module.exports = router;

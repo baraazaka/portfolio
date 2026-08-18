@@ -4,26 +4,10 @@ const pool = require("../db");
 const getProjects = async (req, res) => {
     try {
         const result = await pool.query(
-            `SELECT
-                p.*,
-                COALESCE(
-                    JSON_AGG(
-                        JSON_BUILD_OBJECT(
-                            'id', s.id,
-                            'name', s.name,
-                            'category', s.category,
-                            'level', s.level
-                        )
-                    ) FILTER (WHERE s.id IS NOT NULL),
-                    '[]'
-                ) AS skills
-             FROM projects p
-             LEFT JOIN project_skills ps
-                ON p.id = ps.project_id
-             LEFT JOIN skills s
-                ON ps.skill_id = s.id
-             GROUP BY p.id
-             ORDER BY p.created_at DESC`
+            `SELECT *
+             FROM projects
+             WHERE is_published = true
+             ORDER BY created_at DESC`
         );
 
         res.json(result.rows);
@@ -32,7 +16,7 @@ const getProjects = async (req, res) => {
         console.error(error);
 
         res.status(500).json({
-            error: "Failed to fetch projects"
+            error: "Failed to fetch published projects"
         });
     }
 };
@@ -70,27 +54,10 @@ const getMyProjects = async (req, res) => {
         const userId = req.user.userId;
 
         const result = await pool.query(
-            `SELECT
-                p.*,
-                COALESCE(
-                    JSON_AGG(
-                        JSON_BUILD_OBJECT(
-                            'id', s.id,
-                            'name', s.name,
-                            'category', s.category,
-                            'level', s.level
-                        )
-                    ) FILTER (WHERE s.id IS NOT NULL),
-                    '[]'
-                ) AS skills
-             FROM projects p
-             LEFT JOIN project_skills ps
-                ON p.id = ps.project_id
-             LEFT JOIN skills s
-                ON ps.skill_id = s.id
-             WHERE p.user_id = $1
-             GROUP BY p.id
-             ORDER BY p.created_at DESC`,
+            `SELECT *
+             FROM projects
+             WHERE user_id = $1
+             ORDER BY created_at DESC`,
             [userId]
         );
 
@@ -364,13 +331,70 @@ const deleteProject = async (req, res) => {
         client.release();
     }
 };
+const toggleProjectPublish = async (req, res) => {
+    try {
+        const id = req.params.id;
+        const user_id = req.user.userId;
 
+        const result = await pool.query(
+            `UPDATE projects
+             SET is_published = NOT is_published,
+                 updated_at = NOW()
+             WHERE id = $1
+               AND user_id = $2
+             RETURNING *`,
+            [id, user_id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Project not found or you are not allowed to update it"
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to update project publishing status"
+        });
+    }
+};
+
+const getFeaturedProjects = async (req, res) => {
+    try {
+        const result = await pool.query(
+            `SELECT
+                projects.*,
+                users.name AS user_name
+             FROM projects
+             JOIN users
+               ON users.id = projects.user_id
+             WHERE projects.is_published = true
+             ORDER BY projects.created_at DESC
+             LIMIT 3`
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to fetch featured projects"
+        });
+    }
+};
 
 module.exports = {
     getProjects,
     getProjectById,
+    getMyProjects,
     createProject,
     updateProject,
     deleteProject,
-    getMyProjects
+    toggleProjectPublish,
+    getFeaturedProjects
 };

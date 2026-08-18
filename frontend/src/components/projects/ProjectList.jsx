@@ -3,7 +3,8 @@ import ProjectCard from "./ProjectCard";
 function ProjectList({
     projects,
     onDelete,
-    onEdit
+    onEdit,
+    onPublish
 }) {
     if (projects.length === 0) {
         return (
@@ -27,6 +28,7 @@ function ProjectList({
                     project={project}
                     onDelete={onDelete}
                     onEdit={onEdit}
+                    onPublish={onPublish}
                 />
             ))}
         </div>

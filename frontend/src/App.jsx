@@ -4,7 +4,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Skills from "./pages/Skills";
-
+import Messages from "./pages/Messages";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 import Dashboard from "./pages/Dashboard";
@@ -63,6 +63,10 @@ function App() {
                         path="Experience"
                         element={<Experience />}
                     />
+                    <Route
+                    path="Messages"
+                    element={<Messages />}
+                                    />
                 </Route>
 
             </Routes>
