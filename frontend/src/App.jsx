@@ -11,6 +11,7 @@ import Projects from "./pages/Projects";
 import Skills from "./pages/Skills";
 import Experience from "./pages/Experience";
 import Messages from "./pages/Messages";
+import Contact from "./pages/Contact";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
@@ -29,7 +30,10 @@ function App() {
                 {/* =========================
                     Public Pages
                 ========================= */}
-
+                <Route
+                path="/contact"
+                element={<Contact />}
+                            />
                 <Route
                     path="/"
                     element={<Home />}

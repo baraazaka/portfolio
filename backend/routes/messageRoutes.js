@@ -1,4 +1,5 @@
 const express = require("express");
+
 const authenticateToken = require("../middleware/authMiddleware");
 
 const {
@@ -11,24 +12,32 @@ const {
 const router = express.Router();
 
 
-router.post("/:userId", createMessage);
+// Send message
+router.post("/", createMessage);
 
+
+// Dashboard messages
 router.get(
     "/",
     authenticateToken,
     getMessages
 );
 
+
+// Get one message
 router.get(
     "/:id",
     authenticateToken,
     getMessageById
 );
 
+
+// Delete message
 router.delete(
     "/:id",
     authenticateToken,
     deleteMessage
 );
+
 
 module.exports = router;

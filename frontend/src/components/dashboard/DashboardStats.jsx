@@ -14,7 +14,7 @@ function DashboardStats({ stats, loading }) {
         },
         {
             title: "Messages",
-            value: 0,
+            value: stats?.messagesCount ?? 0,
         },
     ];
 

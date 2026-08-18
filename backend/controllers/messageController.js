@@ -3,27 +3,36 @@ const pool = require("../db");
 
 const getMessages = async (req, res) => {
     try {
-        const userId = req.user.userId;
+        const user_id = req.user.userId;
 
         const result = await pool.query(
-            `SELECT id, user_id, name, email, message, created_at
-             FROM messages
-             WHERE user_id = $1
-             ORDER BY created_at DESC`,
-            [userId]
+            `SELECT
+                m.id,
+                m.name,
+                m.email,
+                m.message,
+                m.project_id,
+                m.receiver_id,
+                m.created_at,
+                p.title AS project_title
+             FROM messages m
+             LEFT JOIN projects p
+                ON p.id = m.project_id
+             WHERE m.receiver_id = $1
+             ORDER BY m.created_at DESC`,
+            [user_id]
         );
 
         res.json(result.rows);
 
     } catch (error) {
-        console.error(error);
+        console.error("Get messages error:", error);
 
         res.status(500).json({
             error: "Failed to fetch messages"
         });
     }
 };
-
 
 const getMessageById = async (req, res) => {
     try {
@@ -58,50 +67,66 @@ const getMessageById = async (req, res) => {
 
 const createMessage = async (req, res) => {
     try {
-        const userId = req.params.userId;
-
         const {
             name,
             email,
-            message
+            message,
+            project_id
         } = req.body;
 
-        if (!name || !email || !message) {
+        if (!name || !email || !message || !project_id) {
             return res.status(400).json({
-                error: "Name, email and message are required"
+                error: "Name, email, message and project are required"
             });
         }
 
-        const userResult = await pool.query(
-            `SELECT id
-             FROM users
+        // Get project owner
+        const projectResult = await pool.query(
+            `SELECT user_id
+             FROM projects
              WHERE id = $1`,
-            [userId]
+            [project_id]
         );
 
-        if (userResult.rows.length === 0) {
+        if (projectResult.rows.length === 0) {
             return res.status(404).json({
-                error: "Portfolio owner not found"
+                error: "Project not found"
             });
         }
+
+        const receiver_id = projectResult.rows[0].user_id;
 
         const result = await pool.query(
             `INSERT INTO messages
-            (user_id, name, email, message)
-            VALUES ($1, $2, $3, $4)
-            RETURNING id, user_id, name, email, message, created_at`,
-            [
-                userId,
+            (
                 name,
                 email,
-                message
+                message,
+                project_id,
+                receiver_id
+            )
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING
+                id,
+                name,
+                email,
+                message,
+                project_id,
+                receiver_id,
+                created_at`,
+            [
+                name,
+                email,
+                message,
+                project_id,
+                receiver_id
             ]
         );
 
         res.status(201).json(result.rows[0]);
 
     } catch (error) {
-        console.error(error);
+        console.error("Create message error:", error);
 
         res.status(500).json({
             error: "Failed to create message"
