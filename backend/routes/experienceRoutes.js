@@ -3,6 +3,7 @@ const authenticateToken = require("../middleware/authMiddleware");
 
 const {
     getExperiences,
+    getMyExperiences,
     getExperienceById,
     createExperience,
     updateExperience,
@@ -13,12 +14,26 @@ const router = express.Router();
 
 
 router.get("/", getExperiences);
+
+
+router.get("/my", authenticateToken, getMyExperiences);
+
+
 router.get("/:id", getExperienceById);
 
 
 router.post("/", authenticateToken, createExperience);
-router.put("/:id", authenticateToken, updateExperience);
-router.delete("/:id", authenticateToken, deleteExperience);
 
+router.put(
+    "/:id",
+    authenticateToken,
+    updateExperience
+);
+
+router.delete(
+    "/:id",
+    authenticateToken,
+    deleteExperience
+);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const pool = require("../db");
 
+
 const getExperiences = async (req, res) => {
     try {
         const result = await pool.query(
@@ -11,10 +12,34 @@ const getExperiences = async (req, res) => {
         res.json(result.rows);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to fetch experiences"
+        });
+    }
+};
+
+
+const getMyExperiences = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const result = await pool.query(
+            `SELECT *
+             FROM experiences
+             WHERE user_id = $1
+             ORDER BY start_date DESC`,
+            [userId]
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(error);
+
+        res.status(500).json({
+            error: "Failed to fetch your experiences"
         });
     }
 };
@@ -40,7 +65,7 @@ const getExperienceById = async (req, res) => {
         res.json(result.rows[0]);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to fetch experience"
@@ -53,24 +78,30 @@ const createExperience = async (req, res) => {
     try {
         const {
             company,
-            postion,
+            position,
             description,
             start_date,
             end_date
         } = req.body;
 
-        // Get user ID from JWT
-        const user_id = req.user.userId;
+        const userId = req.user.userId;
 
         const result = await pool.query(
             `INSERT INTO experiences
-            (user_id, company, postion, description, start_date, end_date)
+            (
+                user_id,
+                company,
+                position,
+                description,
+                start_date,
+                end_date
+            )
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *`,
             [
-                user_id,
+                userId,
                 company,
-                postion,
+                position,
                 description,
                 start_date,
                 end_date
@@ -80,7 +111,7 @@ const createExperience = async (req, res) => {
         res.status(201).json(result.rows[0]);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to create experience"
@@ -92,11 +123,11 @@ const createExperience = async (req, res) => {
 const updateExperience = async (req, res) => {
     try {
         const id = req.params.id;
-        const user_id = req.user.userId;
+        const userId = req.user.userId;
 
         const {
             company,
-            postion,
+            position,
             description,
             start_date,
             end_date
@@ -105,20 +136,22 @@ const updateExperience = async (req, res) => {
         const result = await pool.query(
             `UPDATE experiences
              SET company = $1,
-                 postion = $2,
+                 position = $2,
                  description = $3,
                  start_date = $4,
-                 end_date = $5
-             WHERE id = $6 AND user_id = $7
+                 end_date = $5,
+                 updated_at = NOW()
+             WHERE id = $6
+               AND user_id = $7
              RETURNING *`,
             [
                 company,
-                postion,
+                position,
                 description,
                 start_date,
                 end_date,
                 id,
-                user_id
+                userId
             ]
         );
 
@@ -131,7 +164,7 @@ const updateExperience = async (req, res) => {
         res.json(result.rows[0]);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to update experience"
@@ -143,13 +176,14 @@ const updateExperience = async (req, res) => {
 const deleteExperience = async (req, res) => {
     try {
         const id = req.params.id;
-        const user_id = req.user.userId;
+        const userId = req.user.userId;
 
         const result = await pool.query(
             `DELETE FROM experiences
-             WHERE id = $1 AND user_id = $2
+             WHERE id = $1
+               AND user_id = $2
              RETURNING *`,
-            [id, user_id]
+            [id, userId]
         );
 
         if (result.rows.length === 0) {
@@ -164,7 +198,7 @@ const deleteExperience = async (req, res) => {
         });
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to delete experience"
@@ -175,6 +209,7 @@ const deleteExperience = async (req, res) => {
 
 module.exports = {
     getExperiences,
+    getMyExperiences,
     getExperienceById,
     createExperience,
     updateExperience,

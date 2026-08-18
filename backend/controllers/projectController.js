@@ -1,7 +1,6 @@
 const pool = require("../db");
 
 
-// Get all projects
 const getProjects = async (req, res) => {
     try {
         const result = await pool.query(
@@ -39,7 +38,6 @@ const getProjects = async (req, res) => {
 };
 
 
-// Get project by ID
 const getProjectById = async (req, res) => {
     try {
         const id = req.params.id;
@@ -67,7 +65,6 @@ const getProjectById = async (req, res) => {
 };
 
 
-// Get my projects
 const getMyProjects = async (req, res) => {
     try {
         const userId = req.user.userId;
@@ -107,7 +104,6 @@ const getMyProjects = async (req, res) => {
         });
     }
 };
-// Create project
 const createProject = async (req, res) => {
     const client = await pool.connect();
 
@@ -126,7 +122,6 @@ const createProject = async (req, res) => {
         await client.query("BEGIN");
 
 
-        // Create project
         const projectResult = await client.query(
             `INSERT INTO projects
             (user_id, title, description, image_url, github_url, live_url)
@@ -145,7 +140,6 @@ const createProject = async (req, res) => {
         const project = projectResult.rows[0];
 
 
-        // Make sure skills belong to the current user
         if (skills.length > 0) {
 
             const skillResult = await client.query(
@@ -201,7 +195,6 @@ const createProject = async (req, res) => {
 };
 
 
-// Update project
 const updateProject = async (req, res) => {
     const client = await pool.connect();
 
@@ -221,7 +214,6 @@ const updateProject = async (req, res) => {
         await client.query("BEGIN");
 
 
-        // Update project
         const projectResult = await client.query(
             `UPDATE projects
              SET title = $1,
@@ -254,7 +246,6 @@ const updateProject = async (req, res) => {
         }
 
 
-        // Make sure skills belong to current user
         if (skills.length > 0) {
 
             const skillResult = await client.query(
@@ -275,7 +266,6 @@ const updateProject = async (req, res) => {
         }
 
 
-        // Remove old skills
         await client.query(
             `DELETE FROM project_skills
              WHERE project_id = $1`,
@@ -283,7 +273,6 @@ const updateProject = async (req, res) => {
         );
 
 
-        // Add new skills
         for (const skillId of skills) {
             await client.query(
                 `INSERT INTO project_skills
@@ -318,7 +307,6 @@ const updateProject = async (req, res) => {
 };
 
 
-// Delete project
 const deleteProject = async (req, res) => {
     const client = await pool.connect();
 
@@ -329,7 +317,6 @@ const deleteProject = async (req, res) => {
         await client.query("BEGIN");
 
 
-        // Delete project skills first
         await client.query(
             `DELETE FROM project_skills
              WHERE project_id = $1`,
@@ -337,7 +324,6 @@ const deleteProject = async (req, res) => {
         );
 
 
-        // Delete project
         const result = await client.query(
             `DELETE FROM projects
              WHERE id = $1
