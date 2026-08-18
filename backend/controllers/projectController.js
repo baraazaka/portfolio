@@ -27,7 +27,30 @@ const getProjectById = async (req, res) => {
         const id = req.params.id;
 
         const result = await pool.query(
-            "SELECT * FROM projects WHERE id = $1",
+            `SELECT
+                p.*,
+                u.name AS user_name,
+                COALESCE(
+                    JSON_AGG(
+                        JSON_BUILD_OBJECT(
+                            'id', s.id,
+                            'name', s.name,
+                            'category', s.category,
+                            'level', s.level
+                        )
+                    ) FILTER (WHERE s.id IS NOT NULL),
+                    '[]'
+                ) AS skills
+             FROM projects p
+             JOIN users u
+                ON u.id = p.user_id
+             LEFT JOIN project_skills ps
+                ON ps.project_id = p.id
+             LEFT JOIN skills s
+                ON s.id = ps.skill_id
+             WHERE p.id = $1
+               AND p.is_published = true
+             GROUP BY p.id, u.name`,
             [id]
         );
 
@@ -40,14 +63,13 @@ const getProjectById = async (req, res) => {
         res.json(result.rows[0]);
 
     } catch (error) {
-        console.log(error);
+        console.error(error);
 
         res.status(500).json({
             error: "Failed to fetch project"
         });
     }
 };
-
 
 const getMyProjects = async (req, res) => {
     try {

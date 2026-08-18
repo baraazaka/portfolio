@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 function FeaturedProjectCard({ project }) {
     return (
         <article className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl">
@@ -57,13 +58,12 @@ function FeaturedProjectCard({ project }) {
                 {/* Actions */}
                 <div className="mt-6 flex items-center gap-3">
 
-                    <a
-                        href={`/projects/${project.id}`}
-                        className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
-                    >
-                        View Project
-                    </a>
-
+                    <Link
+    to={`/projects/${project.id}`}
+    className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+>
+    View Project
+</Link>
                     {project.github_url && (
                         <a
                             href={project.github_url}

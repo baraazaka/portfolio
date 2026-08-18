@@ -1,22 +1,34 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Experience from "./pages/Experience";
+
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Skills from "./pages/Skills";
-import Messages from "./pages/Messages";
-import ProtectedRoute from "./components/ProtectedRoute";
+import PublicProjects from "./pages/PublicProjects";
+import ProjectDetails from "./pages/ProjectDetails";
 
 import Dashboard from "./pages/Dashboard";
 import Projects from "./pages/Projects";
+import Skills from "./pages/Skills";
+import Experience from "./pages/Experience";
+import Messages from "./pages/Messages";
 
+import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
+import Navbar from "./components/home/Navbar";
+
 
 function App() {
     return (
         <BrowserRouter>
+
+            {/* Public Navbar */}
+            <Navbar />
+
             <Routes>
 
+                {/* =========================
+                    Public Pages
+                ========================= */}
 
                 <Route
                     path="/"
@@ -24,19 +36,32 @@ function App() {
                 />
 
                 <Route
-                    path="/Login"
+                    path="/projects"
+                    element={<PublicProjects />}
+                />
+
+                <Route
+                    path="/projects/:id"
+                    element={<ProjectDetails />}
+                />
+
+                <Route
+                    path="/login"
                     element={<Login />}
                 />
 
                 <Route
-                    path="/Register"
+                    path="/register"
                     element={<Register />}
                 />
 
 
+                {/* =========================
+                    Dashboard
+                ========================= */}
 
                 <Route
-                    path="/Dashboard"
+                    path="/dashboard"
                     element={
                         <ProtectedRoute>
                             <DashboardLayout />
@@ -50,26 +75,29 @@ function App() {
                     />
 
                     <Route
-                        path="Projects"
+                        path="projects"
                         element={<Projects />}
                     />
 
                     <Route
-                        path="Skills"
+                        path="skills"
                         element={<Skills />}
                     />
 
                     <Route
-                        path="Experience"
+                        path="experience"
                         element={<Experience />}
                     />
+
                     <Route
-                    path="Messages"
-                    element={<Messages />}
-                                    />
+                        path="messages"
+                        element={<Messages />}
+                    />
+
                 </Route>
 
             </Routes>
+
         </BrowserRouter>
     );
 }

@@ -10,7 +10,6 @@ import FeaturedProjects from "../components/home/FeaturedProjects";
 function Home() {
     return(
         <>
-        <Navbar/>
         <Hero/>
         <FeaturedProjects />
         <ContactForm />
