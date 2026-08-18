@@ -164,10 +164,108 @@ const deleteMessage = async (req, res) => {
     }
 };
 
+const getUnreadMessagesCount = async (req, res) => {
+    try {
+        const userId = req.user.userId;
 
+        const result = await pool.query(
+            `SELECT COUNT(*)
+             FROM messages
+             WHERE receiver_id = $1
+             AND is_read = FALSE`,
+            [userId]
+        );
+
+        res.json({
+            count: Number(result.rows[0].count)
+        });
+
+    } catch (error) {
+        console.error(
+            "Unread messages count error:",
+            error
+        );
+
+        res.status(500).json({
+            error: "Failed to get unread messages count"
+        });
+    }
+};
+const getUnreadMessages = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const result = await pool.query(
+            `SELECT
+                m.id,
+                m.name,
+                m.email,
+                m.message,
+                m.project_id,
+                m.created_at,
+                p.title AS project_title
+             FROM messages m
+             LEFT JOIN projects p
+                ON p.id = m.project_id
+             WHERE m.receiver_id = $1
+             AND m.is_read = FALSE
+             ORDER BY m.created_at DESC
+             LIMIT 10`,
+            [userId]
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+        console.error(
+            "Unread messages error:",
+            error
+        );
+
+        res.status(500).json({
+            error: "Failed to fetch unread messages"
+        });
+    }
+};
+const markMessageAsRead = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+        const messageId = req.params.id;
+
+        const result = await pool.query(
+            `UPDATE messages
+             SET is_read = TRUE
+             WHERE id = $1
+             AND receiver_id = $2
+             RETURNING id, is_read`,
+            [messageId, userId]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({
+                error: "Message not found"
+            });
+        }
+
+        res.json(result.rows[0]);
+
+    } catch (error) {
+        console.error(
+            "Mark message as read error:",
+            error
+        );
+
+        res.status(500).json({
+            error: "Failed to mark message as read"
+        });
+    }
+};
 module.exports = {
     getMessages,
     getMessageById,
     createMessage,
-    deleteMessage
+    deleteMessage,
+    getUnreadMessagesCount,
+    getUnreadMessages,
+    markMessageAsRead
 };

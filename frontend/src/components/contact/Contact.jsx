@@ -1,3 +1,4 @@
+import Navbar from "../components/navbar/Navbar";
 
 import ContactHero from "../components/contact/ContactHero";
 import ContactInfo from "../components/contact/ContactInfo";
@@ -7,6 +8,7 @@ function Contact() {
     return (
         <div className="min-h-screen bg-gray-50">
 
+            <Navbar />
 
             <main>
                 <section className="px-6 py-20 lg:px-8">

@@ -15,7 +15,7 @@ import Contact from "./pages/Contact";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
-import Navbar from "./components/home/Navbar";
+import Navbar from "./components/navbar/Navbar";
 
 
 function App() {

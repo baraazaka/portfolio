@@ -1,5 +1,5 @@
 import Hero from "../components/home/Hero";
-import Navbar from "../components/home/Navbar";
+import Navbar from "../components/navbar/Navbar";
 import { Link } from "react-router-dom";
 import Projects from "../components/home/Projects";
 import About from "../components/home/About";
@@ -12,7 +12,6 @@ function Home() {
         <>
         <Hero/>
         <FeaturedProjects />
-        <ContactForm />
         <About/>
         <Contact/>
         <Footer/>

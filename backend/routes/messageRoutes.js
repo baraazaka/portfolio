@@ -6,7 +6,10 @@ const {
     getMessages,
     getMessageById,
     createMessage,
-    deleteMessage
+    deleteMessage,
+    getUnreadMessagesCount,
+    getUnreadMessages,
+    markMessageAsRead
 } = require("../controllers/messageController");
 
 const router = express.Router();
@@ -16,7 +19,7 @@ const router = express.Router();
 router.post("/", createMessage);
 
 
-// Dashboard messages
+// All messages
 router.get(
     "/",
     authenticateToken,
@@ -24,13 +27,30 @@ router.get(
 );
 
 
-// Get one message
+// Unread messages
+router.get(
+    "/unread",
+    authenticateToken,
+    getUnreadMessages
+);
+
+router.get(
+    "/unread-count",
+    authenticateToken,
+    getUnreadMessagesCount
+);
+
+router.patch(
+    "/:id/read",
+    authenticateToken,
+    markMessageAsRead
+);
+
 router.get(
     "/:id",
     authenticateToken,
     getMessageById
 );
-
 
 // Delete message
 router.delete(
