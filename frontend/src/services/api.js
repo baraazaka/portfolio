@@ -30,5 +30,8 @@ export const getMySkills = async () => {
     const response = await api.get("/skills/my");
     return response.data;
 };
-
+export const getMyExperiences = async () => {
+    const response = await api.get("/experiences/my");
+    return response.data;
+};
 export default api;

@@ -78,20 +78,20 @@ const createExperience = async (req, res) => {
     try {
         const {
             company,
-            position,
+            postion,
             description,
             start_date,
             end_date
         } = req.body;
 
-        const userId = req.user.userId;
+        const user_id = req.user.userId;
 
         const result = await pool.query(
             `INSERT INTO experiences
             (
                 user_id,
                 company,
-                position,
+                postion,
                 description,
                 start_date,
                 end_date
@@ -99,9 +99,9 @@ const createExperience = async (req, res) => {
             VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *`,
             [
-                userId,
+                user_id,
                 company,
-                position,
+                postion,
                 description,
                 start_date,
                 end_date
@@ -119,15 +119,14 @@ const createExperience = async (req, res) => {
     }
 };
 
-
 const updateExperience = async (req, res) => {
     try {
         const id = req.params.id;
-        const userId = req.user.userId;
+        const user_id = req.user.userId;
 
         const {
             company,
-            position,
+            postion,
             description,
             start_date,
             end_date
@@ -136,22 +135,21 @@ const updateExperience = async (req, res) => {
         const result = await pool.query(
             `UPDATE experiences
              SET company = $1,
-                 position = $2,
+                 postion = $2,
                  description = $3,
                  start_date = $4,
-                 end_date = $5,
-                 updated_at = NOW()
+                 end_date = $5
              WHERE id = $6
                AND user_id = $7
              RETURNING *`,
             [
                 company,
-                position,
+                postion,
                 description,
                 start_date,
                 end_date,
                 id,
-                userId
+                user_id
             ]
         );
 
@@ -171,8 +169,6 @@ const updateExperience = async (req, res) => {
         });
     }
 };
-
-
 const deleteExperience = async (req, res) => {
     try {
         const id = req.params.id;

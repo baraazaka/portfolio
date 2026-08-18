@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
+import Experience from "./pages/Experience";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -17,7 +17,6 @@ function App() {
         <BrowserRouter>
             <Routes>
 
-                {/* Public Pages */}
 
                 <Route
                     path="/"
@@ -35,7 +34,6 @@ function App() {
                 />
 
 
-                {/* Protected Dashboard */}
 
                 <Route
                     path="/Dashboard"
@@ -46,24 +44,25 @@ function App() {
                     }
                 >
 
-                    {/* /Dashboard */}
                     <Route
                         index
                         element={<Dashboard />}
                     />
 
-                    {/* /Dashboard/Projects */}
                     <Route
                         path="Projects"
                         element={<Projects />}
                     />
 
-                    {/* /Dashboard/Skills */}
                     <Route
                         path="Skills"
                         element={<Skills />}
                     />
 
+                    <Route
+                        path="Experience"
+                        element={<Experience />}
+                    />
                 </Route>
 
             </Routes>
