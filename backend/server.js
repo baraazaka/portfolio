@@ -9,6 +9,7 @@ const authRoutes = require("./routes/authRoutes");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const cors = require("cors");
 const app = express();
+const path = require("path");
 app.use(cors({
     origin: "http://localhost:5173"
 }));
@@ -21,6 +22,10 @@ app.use("/api/experiences", experienceRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use(
+    "/uploads",
+    express.static(path.join(__dirname, "uploads"))
+);
 app.get("/", (req, res) => {
     res.send("Portfolio API is running!");
 });

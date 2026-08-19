@@ -15,9 +15,9 @@ function NavbarLinks({ isLoggedIn }) {
             active: location.pathname === "/projects",
         },
         {
-            name: "About",
-            path: "/about",
-            active: location.pathname === "/about",
+            name: "Portfolios",
+            path: "/portfolios",
+            active: location.pathname.startsWith("/portfolios"),
         },
         {
             name: "Contact",

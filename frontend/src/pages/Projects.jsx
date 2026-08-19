@@ -8,18 +8,26 @@ import ProjectForm from "../components/projects/ProjectForm";
 
 function Projects() {
     const [projects, setProjects] = useState([]);
+
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
     const [showForm, setShowForm] = useState(false);
     const [editingProject, setEditingProject] = useState(null);
+
     const [creating, setCreating] = useState(false);
 
 
-    // Load user's projects
+    // =========================
+    // Load Projects
+    // =========================
+
     useEffect(() => {
         async function loadProjects() {
             try {
+                setLoading(true);
+                setError("");
+
                 const data = await getMyProjects();
 
                 console.log("MY PROJECTS:", data);
@@ -27,9 +35,15 @@ function Projects() {
                 setProjects(data);
 
             } catch (error) {
-                console.error("Projects error:", error);
+                console.error(
+                    "Projects error:",
+                    error
+                );
 
-                setError("Failed to load projects");
+                setError(
+                    error.response?.data?.error ||
+                    "Failed to load projects"
+                );
 
             } finally {
                 setLoading(false);
@@ -37,39 +51,65 @@ function Projects() {
         }
 
         loadProjects();
+
     }, []);
 
 
-    // Add project
+    // =========================
+    // Add Project
+    // =========================
+
     function handleAddProject() {
         setEditingProject(null);
         setShowForm(true);
+        setError("");
     }
 
 
-    // Edit project
+    // =========================
+    // Edit Project
+    // =========================
+
     function handleEdit(project) {
         setEditingProject(project);
         setShowForm(true);
+        setError("");
     }
 
 
-    // Cancel form
+    // =========================
+    // Cancel
+    // =========================
+
     function handleCancel() {
         setShowForm(false);
         setEditingProject(null);
     }
 
 
-    // Create project
+    // =========================
+    // Create Project
+    // =========================
+
     async function handleCreateProject(projectData) {
         try {
             setCreating(true);
             setError("");
 
+            /*
+             * projectData is FormData
+             * because ProjectForm now sends
+             * the image file as multipart/form-data.
+             */
+
             const response = await api.post(
-                "/projects",
-                projectData
+    "/projects",
+    projectData
+);
+
+            console.log(
+                "PROJECT CREATED:",
+                response.data
             );
 
             setProjects((currentProjects) => [
@@ -97,15 +137,32 @@ function Projects() {
     }
 
 
-    // Update project
+    // =========================
+    // Update Project
+    // =========================
+
     async function handleUpdateProject(projectData) {
+        if (!editingProject?.id) {
+            return;
+        }
+
         try {
             setCreating(true);
             setError("");
 
             const response = await api.put(
                 `/projects/${editingProject.id}`,
-                projectData
+                projectData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                }
+            );
+
+            console.log(
+                "PROJECT UPDATED:",
+                response.data
             );
 
             setProjects((currentProjects) =>
@@ -136,7 +193,10 @@ function Projects() {
     }
 
 
-    // Create or update
+    // =========================
+    // Create / Update
+    // =========================
+
     async function handleSubmitProject(projectData) {
         if (editingProject) {
             await handleUpdateProject(projectData);
@@ -146,7 +206,10 @@ function Projects() {
     }
 
 
-    // Delete project
+    // =========================
+    // Delete Project
+    // =========================
+
     async function handleDelete(projectId) {
         const confirmed = window.confirm(
             "Are you sure you want to delete this project?"
@@ -184,13 +247,21 @@ function Projects() {
     }
 
 
-    // Publish / Unpublish project
+    // =========================
+    // Publish / Unpublish
+    // =========================
+
     async function handlePublish(projectId) {
         try {
             setError("");
 
             const response = await api.patch(
                 `/projects/${projectId}/publish`
+            );
+
+            console.log(
+                "PROJECT PUBLISH STATUS:",
+                response.data
             );
 
             setProjects((currentProjects) =>
@@ -221,12 +292,14 @@ function Projects() {
             <div className="mx-auto max-w-7xl">
 
                 {/* Header */}
+
                 <ProjectHeader
                     onAddProject={handleAddProject}
                 />
 
 
                 {/* Form */}
+
                 {showForm && (
                     <ProjectForm
                         project={editingProject}
@@ -238,6 +311,7 @@ function Projects() {
 
 
                 {/* Saving */}
+
                 {creating && (
                     <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-500">
                         Saving project...
@@ -246,6 +320,7 @@ function Projects() {
 
 
                 {/* Error */}
+
                 {error && (
                     <div className="mb-6 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-600">
                         {error}
@@ -254,6 +329,7 @@ function Projects() {
 
 
                 {/* Loading */}
+
                 {loading && (
                     <div className="rounded-2xl border border-gray-200 bg-white p-8 text-center">
                         <p className="text-gray-500">
@@ -263,7 +339,8 @@ function Projects() {
                 )}
 
 
-                {/* Project list */}
+                {/* Projects */}
+
                 {!loading && (
                     <ProjectList
                         projects={projects}

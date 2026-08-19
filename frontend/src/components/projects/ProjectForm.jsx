@@ -9,7 +9,11 @@ function ProjectForm({
 }) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
-    const [image_url, setImageUrl] = useState("");
+
+    // Project image
+    const [image, setImage] = useState(null);
+    const [existingImage, setExistingImage] = useState("");
+
     const [github_url, setGithubUrl] = useState("");
     const [live_url, setLiveUrl] = useState("");
 
@@ -37,11 +41,13 @@ function ProjectForm({
         if (project) {
             setTitle(project.title || "");
             setDescription(project.description || "");
-            setImageUrl(project.image_url || "");
+
+            setImage(null);
+            setExistingImage(project.image_url || "");
+
             setGithubUrl(project.github_url || "");
             setLiveUrl(project.live_url || "");
 
-            // Skills الموجودة مسبقًا في المشروع
             setSelectedSkills(
                 Array.isArray(project.skills)
                     ? project.skills.map((skill) =>
@@ -52,9 +58,13 @@ function ProjectForm({
         } else {
             setTitle("");
             setDescription("");
-            setImageUrl("");
+
+            setImage(null);
+            setExistingImage("");
+
             setGithubUrl("");
             setLiveUrl("");
+
             setSelectedSkills([]);
         }
     }, [project]);
@@ -71,17 +81,32 @@ function ProjectForm({
         });
     }
 
+    function handleImageChange(e) {
+        const file = e.target.files?.[0] || null;
+
+        setImage(file);
+    }
+
     function handleSubmit(e) {
         e.preventDefault();
 
-        onSubmit({
-            title,
-            description,
-            image_url,
-            github_url,
-            live_url,
-            skills: selectedSkills
+        const formData = new FormData();
+
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("github_url", github_url);
+        formData.append("live_url", live_url);
+
+        selectedSkills.forEach((skillId) => {
+            formData.append("skills", String(skillId));
         });
+
+        // New image selected
+        if (image) {
+            formData.append("project_image", image);
+        }
+
+        onSubmit(formData);
     }
 
     const isEditing = Boolean(project);
@@ -92,7 +117,9 @@ function ProjectForm({
             className="mb-8 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
         >
             <h2 className="text-xl font-semibold text-gray-900">
-                {isEditing ? "Edit Project" : "Add New Project"}
+                {isEditing
+                    ? "Edit Project"
+                    : "Add New Project"}
             </h2>
 
             <div className="mt-6 grid gap-5">
@@ -106,7 +133,9 @@ function ProjectForm({
                     <input
                         type="text"
                         value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={(e) =>
+                            setTitle(e.target.value)
+                        }
                         required
                         className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
                     />
@@ -121,25 +150,64 @@ function ProjectForm({
 
                     <textarea
                         value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        onChange={(e) =>
+                            setDescription(e.target.value)
+                        }
                         rows="4"
                         className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
                     />
                 </div>
 
 
-                {/* Image */}
+                {/* Project Image */}
                 <div>
                     <label className="text-sm font-medium text-gray-700">
-                        Image URL
+                        Project Image
                     </label>
 
-                    <input
-                        type="url"
-                        value={image_url}
-                        onChange={(e) => setImageUrl(e.target.value)}
-                        className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
-                    />
+                    <div className="mt-2 flex flex-wrap items-center gap-3">
+
+                        <label className="cursor-pointer rounded-xl border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50">
+                            Choose Image
+
+                            <input
+                                type="file"
+                                accept="image/jpeg,image/png,image/webp"
+                                className="hidden"
+                                onChange={handleImageChange}
+                            />
+                        </label>
+
+                        {image && (
+                            <span className="text-sm text-gray-500">
+                                {image.name}
+                            </span>
+                        )}
+
+                        {!image && existingImage && (
+                            <span className="text-sm text-gray-500">
+                                Current image saved
+                            </span>
+                        )}
+
+                        {!image && !existingImage && (
+                            <span className="text-sm text-gray-400">
+                                No image selected
+                            </span>
+                        )}
+
+                    </div>
+
+
+                    {/* New image preview */}
+                    {image && (
+                        <img
+                            src={URL.createObjectURL(image)}
+                            alt="Selected project"
+                            className="mt-4 h-32 w-48 rounded-xl border border-gray-200 object-cover"
+                        />
+                    )}
+
                 </div>
 
 
@@ -152,7 +220,10 @@ function ProjectForm({
                     <input
                         type="url"
                         value={github_url}
-                        onChange={(e) => setGithubUrl(e.target.value)}
+                        onChange={(e) =>
+                            setGithubUrl(e.target.value)
+                        }
+                        placeholder="https://github.com/..."
                         className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
                     />
                 </div>
@@ -167,7 +238,10 @@ function ProjectForm({
                     <input
                         type="url"
                         value={live_url}
-                        onChange={(e) => setLiveUrl(e.target.value)}
+                        onChange={(e) =>
+                            setLiveUrl(e.target.value)
+                        }
+                        placeholder="https://..."
                         className="mt-2 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:border-black"
                     />
                 </div>
@@ -175,7 +249,9 @@ function ProjectForm({
 
                 {/* Skills */}
                 <div>
+
                     <div className="flex items-center justify-between">
+
                         <label className="text-sm font-medium text-gray-700">
                             Technologies & Skills
                         </label>
@@ -185,7 +261,9 @@ function ProjectForm({
                                 {selectedSkills.length} selected
                             </span>
                         )}
+
                     </div>
+
 
                     {loadingSkills ? (
                         <div className="mt-3 rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
@@ -221,6 +299,7 @@ function ProjectForm({
                                         }`}
                                     >
                                         <div>
+
                                             <p className="font-medium">
                                                 {skill.name}
                                             </p>
@@ -234,6 +313,7 @@ function ProjectForm({
                                             >
                                                 {skill.category}
                                             </p>
+
                                         </div>
 
                                         <div
@@ -245,12 +325,14 @@ function ProjectForm({
                                         >
                                             {isSelected ? "✓" : ""}
                                         </div>
+
                                     </button>
                                 );
                             })}
 
                         </div>
                     )}
+
                 </div>
 
             </div>
@@ -274,7 +356,8 @@ function ProjectForm({
                 <button
                     type="button"
                     onClick={onCancel}
-                    className="rounded-xl border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+                    disabled={submitting}
+                    className="rounded-xl border border-gray-300 px-5 py-3 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-50"
                 >
                     Cancel
                 </button>

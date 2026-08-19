@@ -1,27 +1,37 @@
 import { NavLink, Link } from "react-router-dom";
 import logo from "../../assets/logo.png";
 
-function DashboardSidebar() {
+function DashboardSidebar({ user }) {
     const links = [
         {
             name: "Overview",
-            path: "/Dashboard"
+            path: "/dashboard"
+        },
+        {
+            name: "Profile",
+            path: "/dashboard/profile"
+        },
+        {
+            name: "Portfolio",
+            path: user?.username
+                ? `/portfolio/${user.username}`
+                : "#"
         },
         {
             name: "Projects",
-            path: "/Dashboard/Projects"
+            path: "/dashboard/projects"
         },
         {
             name: "Skills",
-            path: "/Dashboard/Skills"
+            path: "/dashboard/skills"
         },
         {
             name: "Experience",
-            path: "/Dashboard/Experience"
+            path: "/dashboard/experience"
         },
         {
             name: "Messages",
-            path: "/Dashboard/Messages"
+            path: "/dashboard/messages"
         }
     ];
 
@@ -33,7 +43,7 @@ function DashboardSidebar() {
                 {/* Logo */}
                 <div className="mb-8">
                     <Link
-                        to="/Dashboard"
+                        to="/dashboard"
                         className="flex items-center"
                     >
                         <img
@@ -52,22 +62,39 @@ function DashboardSidebar() {
                 {/* Navigation */}
                 <nav className="flex flex-col gap-2">
 
-                    {links.map((link) => (
-                        <NavLink
-                            key={link.path}
-                            to={link.path}
-                            end={link.path === "/Dashboard"}
-                            className={({ isActive }) =>
-                                `rounded-xl px-4 py-3 text-sm font-medium transition ${
-                                    isActive
-                                        ? "bg-black text-white"
-                                        : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                                }`
-                            }
-                        >
-                            {link.name}
-                        </NavLink>
-                    ))}
+                    {links.map((link) => {
+                        const isPortfolio =
+                            link.name === "Portfolio";
+
+                        if (isPortfolio) {
+                            return (
+                                <Link
+                                    key={link.name}
+                                    to={link.path}
+                                    className="rounded-xl px-4 py-3 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
+                                >
+                                    Portfolio
+                                </Link>
+                            );
+                        }
+
+                        return (
+                            <NavLink
+                                key={link.path}
+                                to={link.path}
+                                end={link.path === "/dashboard"}
+                                className={({ isActive }) =>
+                                    `rounded-xl px-4 py-3 text-sm font-medium transition ${
+                                        isActive
+                                            ? "bg-black text-white"
+                                            : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                                    }`
+                                }
+                            >
+                                {link.name}
+                            </NavLink>
+                        );
+                    })}
 
                 </nav>
 
@@ -77,7 +104,7 @@ function DashboardSidebar() {
 
                     <Link
                         to="/"
-                        className="block rounded-xl px-4 py-3 text-sm font-medium text-gray-600 hover:bg-gray-100"
+                        className="block rounded-xl px-4 py-3 text-sm font-medium text-gray-600 transition hover:bg-gray-100 hover:text-gray-900"
                     >
                         ← Back to website
                     </Link>

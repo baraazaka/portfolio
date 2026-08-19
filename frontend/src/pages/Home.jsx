@@ -7,10 +7,12 @@ import Contact from "../components/home/Contact";
 import Footer from "../components/home/Footer";
 import ContactForm from "../components/contact/ContactForm";
 import FeaturedProjects from "../components/home/FeaturedProjects";
+import LatestPortfolios from "../components/home/LatestPortfolios";
 function Home() {
     return(
         <>
         <Hero/>
+        <LatestPortfolios />
         <FeaturedProjects />
         <About/>
         <Contact/>

@@ -1,6 +1,6 @@
 const express = require("express");
 const authenticateToken = require("../middleware/authMiddleware");
-
+const uploadProjectImage = require("../middleware/projectUploadMiddleware");
 const {
     getProjects,
     getMyProjects,
@@ -56,17 +56,16 @@ router.get(
 router.post(
     "/",
     authenticateToken,
+    uploadProjectImage.single("project_image"),
     createProject
 );
 
-
-// Update project
 router.put(
     "/:id",
     authenticateToken,
+    uploadProjectImage.single("project_image"),
     updateProject
 );
-
 
 // Delete project
 router.delete(

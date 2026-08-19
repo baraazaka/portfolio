@@ -1,5 +1,29 @@
 import { Link } from "react-router-dom";
+
 function FeaturedProjectCard({ project }) {
+
+    function getImageUrl(imageUrl) {
+        if (!imageUrl) {
+            return "";
+        }
+
+        if (
+            imageUrl.startsWith("http://") ||
+            imageUrl.startsWith("https://")
+        ) {
+            return imageUrl;
+        }
+
+        return `http://localhost:5000${imageUrl}`;
+    }
+
+    const profileImage = getImageUrl(
+        project.profile_image_url
+    );
+
+    const ownerInitial =
+        project.user_name?.charAt(0)?.toUpperCase() || "U";
+
     return (
         <article className="group overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-300 hover:-translate-y-1 hover:shadow-xl">
 
@@ -8,7 +32,7 @@ function FeaturedProjectCard({ project }) {
 
                 {project.image_url ? (
                     <img
-                        src={project.image_url}
+                        src={getImageUrl(project.image_url)}
                         alt={project.title}
                         className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
@@ -26,13 +50,30 @@ function FeaturedProjectCard({ project }) {
                 {/* Owner */}
                 <div className="mb-4 flex items-center gap-3">
 
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-700">
-                        {project.user_name?.charAt(0).toUpperCase()}
+                    {profileImage ? (
+                        <img
+                            src={profileImage}
+                            alt={project.user_name || "User"}
+                            className="h-10 w-10 rounded-full object-cover border border-gray-200"
+                            onError={(e) => {
+                                e.currentTarget.style.display = "none";
+                                e.currentTarget.nextElementSibling.style.display = "flex";
+                            }}
+                        />
+                    ) : null}
+
+                    {/* Fallback avatar */}
+                    <div
+                        className={`h-10 w-10 items-center justify-center rounded-full bg-gray-100 text-sm font-semibold text-gray-700 ${
+                            profileImage ? "hidden" : "flex"
+                        }`}
+                    >
+                        {ownerInitial}
                     </div>
 
                     <div>
                         <p className="text-sm font-semibold text-gray-900">
-                            {project.user_name}
+                            {project.user_name || "Unknown user"}
                         </p>
 
                         <p className="text-xs text-gray-500">
@@ -59,11 +100,12 @@ function FeaturedProjectCard({ project }) {
                 <div className="mt-6 flex items-center gap-3">
 
                     <Link
-    to={`/projects/${project.id}`}
-    className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
->
-    View Project
-</Link>
+                        to={`/projects/${project.id}`}
+                        className="rounded-xl bg-black px-4 py-2 text-sm font-medium text-white transition hover:bg-gray-800"
+                    >
+                        View Project
+                    </Link>
+
                     {project.github_url && (
                         <a
                             href={project.github_url}

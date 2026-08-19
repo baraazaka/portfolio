@@ -33,7 +33,7 @@ function ProjectCard({ project }) {
                         {project.description}
                     </p>
                 )}
-
+              
 
                 {/* Technologies */}
                 {project.skills?.length > 0 && (

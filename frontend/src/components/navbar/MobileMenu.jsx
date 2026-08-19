@@ -23,7 +23,6 @@ function MobileMenu({
                     Home
                 </Link>
 
-
                 <Link
                     to="/projects"
                     onClick={onClose}
@@ -32,15 +31,13 @@ function MobileMenu({
                     Projects
                 </Link>
 
-
                 <Link
-                    to="/about"
+                    to="/portfolios"
                     onClick={onClose}
                     className="rounded-lg px-4 py-3 text-gray-700 hover:bg-gray-100"
                 >
-                    About
+                    Portfolios
                 </Link>
-
 
                 <Link
                     to="/contact"
@@ -49,7 +46,6 @@ function MobileMenu({
                 >
                     Contact
                 </Link>
-
 
                 {isLoggedIn && (
                     <>
@@ -70,7 +66,6 @@ function MobileMenu({
                         </Link>
                     </>
                 )}
-
 
                 {isLoggedIn ? (
                     <button

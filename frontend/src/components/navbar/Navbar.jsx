@@ -12,11 +12,9 @@ function Navbar() {
         !!localStorage.getItem("token")
     );
 
-
     function closeMenu() {
         setIsOpen(false);
     }
-
 
     useEffect(() => {
         function handleAuthChange() {
@@ -38,7 +36,6 @@ function Navbar() {
         };
     }, []);
 
-
     function handleLogout() {
         localStorage.removeItem("token");
 
@@ -51,7 +48,6 @@ function Navbar() {
         window.location.href = "/";
     }
 
-
     return (
         <nav className="border-b border-gray-200/60 bg-white/80 backdrop-blur-md">
 
@@ -62,12 +58,10 @@ function Navbar() {
                     onClick={closeMenu}
                 />
 
-
                 {/* Desktop Links */}
                 <NavbarLinks
                     isLoggedIn={isLoggedIn}
                 />
-
 
                 {/* Desktop Actions */}
                 <NavbarActions
@@ -75,9 +69,9 @@ function Navbar() {
                     onLogout={handleLogout}
                 />
 
-
                 {/* Mobile Button */}
                 <button
+                    type="button"
                     onClick={() =>
                         setIsOpen(
                             (current) => !current
@@ -90,7 +84,6 @@ function Navbar() {
                 </button>
 
             </div>
-
 
             {/* Mobile Menu */}
             <MobileMenu

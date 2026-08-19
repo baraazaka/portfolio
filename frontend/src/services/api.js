@@ -34,4 +34,18 @@ export const getMyExperiences = async () => {
     const response = await api.get("/experiences/my");
     return response.data;
 };
+export const publishPortfolio = async (userId) => {
+    const response = await api.put(
+        `/users/${userId}/portfolio`
+    );
+
+    return response.data;
+};
+export async function unpublishPortfolio(userId) {
+    const response = await api.put(
+        `/users/${userId}/portfolio/unpublish`
+    );
+
+    return response.data;
+}
 export default api;

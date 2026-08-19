@@ -4,6 +4,17 @@ const getDashboardStats = async (req, res) => {
     try {
         const userId = req.user.userId;
 
+        const user = await pool.query(
+            `SELECT
+                id,
+                name,
+                username,
+                portfolio_published
+             FROM users
+             WHERE id = $1`,
+            [userId]
+        );
+
         const projects = await pool.query(
             `SELECT COUNT(*)
              FROM projects
@@ -25,6 +36,8 @@ const getDashboardStats = async (req, res) => {
             [userId]
         );
 
+        // Messages belong to the portfolio owner
+        // through receiver_id
         const messages = await pool.query(
             `SELECT COUNT(*)
              FROM messages
@@ -52,7 +65,7 @@ const getDashboardStats = async (req, res) => {
             `SELECT
                 id,
                 company,
-                postion,
+                postion AS position,
                 description,
                 start_date,
                 end_date
@@ -64,17 +77,34 @@ const getDashboardStats = async (req, res) => {
         );
 
         res.json({
-            projectsCount: Number(projects.rows[0].count),
-            skillsCount: Number(skills.rows[0].count),
-            experiencesCount: Number(experiences.rows[0].count),
-            messagesCount: Number(messages.rows[0].count),
+            user: user.rows[0],
+
+            projectsCount: Number(
+                projects.rows[0].count
+            ),
+
+            skillsCount: Number(
+                skills.rows[0].count
+            ),
+
+            experiencesCount: Number(
+                experiences.rows[0].count
+            ),
+
+            messagesCount: Number(
+                messages.rows[0].count
+            ),
 
             recentProjects: recentProjects.rows,
+
             recentExperiences: recentExperiences.rows
         });
 
     } catch (error) {
-        console.error("Dashboard stats error:", error);
+        console.error(
+            "Dashboard stats error:",
+            error
+        );
 
         res.status(500).json({
             error: "Failed to fetch dashboard stats"
